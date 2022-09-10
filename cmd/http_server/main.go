@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	go_specs_greet "github.com/quii/go-specs-greet"
+	go_specs_greet "github.com/quii/go-specs-greet/adapters/http"
 )
 
 func main() {

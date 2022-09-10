@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/alecthomas/assert/v2"
-	go_specs_greet "github.com/quii/go-specs-greet"
+	go_specs_greet "github.com/quii/go-specs-greet/adapters/http"
 	"github.com/quii/go-specs-greet/specifications"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
