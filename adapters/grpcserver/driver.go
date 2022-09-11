@@ -32,6 +32,12 @@ func (d *Driver) Greet(name string) (string, error) {
 	return greeting.Message, nil
 }
 
+func (d *Driver) Close() {
+	if d.conn != nil {
+		d.conn.Close()
+	}
+}
+
 func (d *Driver) getConnection() (*grpc.ClientConn, error) {
 	var err error
 	d.connectionOnce.Do(func() {
