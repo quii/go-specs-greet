@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	go_specs_greet "github.com/quii/go-specs-greet/adapters/httpserver"
@@ -8,5 +9,7 @@ import (
 
 func main() {
 	handler := http.HandlerFunc(go_specs_greet.Handler)
-	http.ListenAndServe(":8080", handler)
+	if err := http.ListenAndServe(":8080", handler); err != nil {
+		log.Fatal(err)
+	}
 }

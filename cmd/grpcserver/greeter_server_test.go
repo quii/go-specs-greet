@@ -16,13 +16,7 @@ func TestGreeterServer(t *testing.T) {
 	ctx := context.Background()
 	port := "50051"
 
-	adapters.StartDockerServer(
-		t,
-		ctx,
-		"./cmd/grpcserver/Dockerfile",
-		port,
-		wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5*time.Second),
-	)
+	adapters.StartDockerServer(ctx, t, "./cmd/grpcserver/Dockerfile", port, wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5*time.Second))
 
 	driver := grpcserver.Driver{Addr: "localhost:50051"}
 	specifications.GreetSpecification(t, &driver)

@@ -11,8 +11,8 @@ import (
 )
 
 func StartDockerServer(
-	t testing.TB,
 	ctx context.Context,
+	t testing.TB,
 	dockerFilePath string,
 	port string,
 	waitingFor wait.Strategy,

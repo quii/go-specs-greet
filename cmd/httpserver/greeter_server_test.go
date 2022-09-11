@@ -17,13 +17,7 @@ func TestGreeterServer(t *testing.T) {
 	ctx := context.Background()
 	port := "8080"
 
-	adapters.StartDockerServer(
-		t,
-		ctx,
-		"./cmd/httpserver/Dockerfile",
-		port,
-		wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5*time.Second),
-	)
+	adapters.StartDockerServer(ctx, t, "./cmd/httpserver/Dockerfile", port, wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5*time.Second))
 
 	client := http.Client{
 		Timeout: 1 * time.Second,
