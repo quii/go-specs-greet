@@ -25,5 +25,5 @@ func TestGreeterServer(t *testing.T) {
 	)
 
 	driver := grpcserver.Driver{Addr: "localhost:50051"}
-	specifications.GreetSpecification(t, driver)
+	specifications.GreetSpecification(t, &driver)
 }

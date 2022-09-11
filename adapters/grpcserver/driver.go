@@ -2,6 +2,7 @@ package grpcserver
 
 import (
 	"context"
+	"sync"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -9,11 +10,13 @@ import (
 
 type Driver struct {
 	Addr string
+
+	connectionOnce sync.Once
+	conn           *grpc.ClientConn
 }
 
-func (d Driver) Greet(name string) (string, error) {
-	//todo: we shouldn't redial every time we call greet, refactor out when we're green
-	conn, err := grpc.Dial(d.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (d *Driver) Greet(name string) (string, error) {
+	conn, err := d.getConnection()
 	if err != nil {
 		return "", err
 	}
@@ -28,4 +31,12 @@ func (d Driver) Greet(name string) (string, error) {
 	}
 
 	return greeting.Message, nil
+}
+
+func (d *Driver) getConnection() (*grpc.ClientConn, error) {
+	var err error
+	d.connectionOnce.Do(func() {
+		d.conn, err = grpc.Dial(d.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	})
+	return d.conn, err
 }
