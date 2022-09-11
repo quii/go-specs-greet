@@ -2,22 +2,23 @@ package main_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
-	"time"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/quii/go-specs-greet/adapters"
 	"github.com/quii/go-specs-greet/adapters/grpcserver"
 	"github.com/quii/go-specs-greet/specifications"
-	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestGreeterServer(t *testing.T) {
-	ctx := context.Background()
-	port := "50051"
+	var (
+		ctx            = context.Background()
+		port           = "50051"
+		dockerFilePath = "./cmd/grpcserver/Dockerfile"
+		addr           = fmt.Sprintf("localhost:%s", port)
+		driver         = grpcserver.Driver{Addr: addr}
+	)
 
-	adapters.StartDockerServer(ctx, t, "./cmd/grpcserver/Dockerfile", port, wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5*time.Second))
-
-	driver := grpcserver.Driver{Addr: "localhost:50051"}
+	adapters.StartDockerServer(ctx, t, dockerFilePath, port)
 	specifications.GreetSpecification(t, &driver)
 }
