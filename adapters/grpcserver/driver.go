@@ -20,7 +20,6 @@ func (d *Driver) Greet(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer conn.Close()
 
 	client := NewGreeterClient(conn)
 	greeting, err := client.Greet(context.Background(), &GreetRequest{
