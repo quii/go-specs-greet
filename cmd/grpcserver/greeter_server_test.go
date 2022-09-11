@@ -11,6 +11,9 @@ import (
 )
 
 func TestGreeterServer(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 	var (
 		ctx            = context.Background()
 		port           = "50051"
