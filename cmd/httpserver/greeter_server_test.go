@@ -17,15 +17,14 @@ func TestGreeterServer(t *testing.T) {
 		t.Skip()
 	}
 	var (
-		ctx            = context.Background()
-		port           = "8080"
-		dockerFilePath = "./cmd/httpserver/Dockerfile"
-		baseURL        = fmt.Sprintf("http://localhost:%s", port)
-		driver         = go_specs_greet.Driver{BaseURL: baseURL, Client: &http.Client{
+		ctx     = context.Background()
+		port    = "8080"
+		baseURL = fmt.Sprintf("http://localhost:%s", port)
+		driver  = go_specs_greet.Driver{BaseURL: baseURL, Client: &http.Client{
 			Timeout: 1 * time.Second,
 		}}
 	)
 
-	adapters.StartDockerServer(ctx, t, dockerFilePath, port)
+	adapters.StartDockerServer(ctx, t, port, "httpserver")
 	specifications.GreetSpecification(t, driver)
 }
