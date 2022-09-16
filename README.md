@@ -30,7 +30,7 @@ This is a follow up to [Intro to acceptance tests](https://quii.gitbook.io/learn
 
 Create a new project
 
-`go mod init github.com/quii/go-specs-greet`
+`go mod init github.com/quii/go-specs-greet` (replace `quii` with whatever you want, any imports in examples will be using this module though, adjust as necessary)
 
 Make a folder `specifications` to hold our specification, and add a file `greet.go`
 
@@ -58,7 +58,7 @@ My IDE (Goland) takes care of the fuss of adding dependencies for me, but if you
 
 `go get github.com/alecthomas/assert/v2`
 
-Given Farley's acceptance test design, we now have a specification which is decoupled from implementation. It doesn't know, or care about _how_ we `Greet`, it's just concerned with the logic. This "logic" isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate.
+Given Farley's acceptance test design, we now have a specification which is decoupled from implementation. Interfaces are a great way to decouple code from implementation detail. The specification doesn't know, or care about _how_ we `Greet`, it's just concerned with the behaviour. This "behaviour" isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate.
 
 At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting"; I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams. I am confident to assert that most acceptance tests out in the wild are expensive to maintain, due to this inappropriate coupling; rather than the reverse, of being overly abstract.
 
@@ -70,13 +70,15 @@ Our requirement is to provider a greeter service over HTTP. So we'll need to cre
 
 1. A **driver**. In this case, the way one works with a HTTP system is using a **HTTP client**. This code will know how to work with our API. Drivers implement the interface that specifications define.
 2. A HTTP server with a greet API
-3. A test, which is responsible for managing the life-cycle of spinning up the server, and then plugging the driver into the specification to run it as a test
+3. A black-box, **acceptance test**, which is responsible for managing the life-cycle of spinning up the application, and then plugging the driver into the specification to run it as a test
 
 ## Write the test first
 
-The initial process for creating a black-box test that compiles and runs your program, executes the test and then cleans everything up can be quite labour intensive. That's why it's preferable to do it at the start of your project on a very small amount of functionality. I typically start all my projects with a "hello world" server implementation, with all of my tests set up, ready for me to build the real functionality easily.
+The initial process for creating an acceptance test that compiles and runs your program, executes the test and then cleans everything up can be quite labour intensive. Much less intensive in the long-run that repeatedly having to these steps yourself to check behaviour though! 
 
-Most development teams these days are shipping using docker, so our acceptance tests will test a docker image we'll build of our program. 
+It's preferable to set this up at the _start_ of your project on a very small amount of functionality. I typically start all my projects with a "hello world" server implementation, with all of my tests set up, ready for me to build the real functionality easily. Trying to retrofit acceptance testing into an existing system can be challenging, and without the setup existing for a project, engineers can tend to be lazy and not bother at all. 
+
+Most development teams these days are shipping using Docker, so our acceptance tests will test a docker image we'll build of our program. 
 
 To help us use Docker in our tests, we're going to use [Testcontainers](https://golang.testcontainers.org). 
 
@@ -139,7 +141,7 @@ func TestGreeterServer(t *testing.T) {
 Notes:
 
 - Most of the code is dedicated to building the Docker image of our web server and then launching a container from it
-- We're going to allow our driver to be configurable with the `BaseURL` field. This'll allow us to re-use the driver in different environments, such as staging, or even production.
+- We're allowing our driver to be configurable with the `BaseURL` field. This'll allow us to re-use the driver in other environments, such as staging, or even production.
 
 ## Try to run the test
 
@@ -180,10 +182,13 @@ func (d Driver) Greet() (string, error) {
 	return string(greeting), nil
 }
 ```
+The pattern to observe here is `Driver` implements the `Greeter` interface the specification defines. If you wish to re-use the specification against another system, all you have to do is follow this same pattern;
+1. Implement the interface
+2. Put the system specific code to drive the system for the test
 
 Notes:
 
-- You could argue that perhaps I should be writing tests to drive out the various `if err != nil`, but in my experience so long as you're not doing anything with the `err`, tests that say "you return the error you get" are fairly low value. 
+- You could argue that perhaps I should be writing tests to drive out the various `if err != nil`, but in my experience so long as you're not doing anything with the `err`, tests that say "you return the error you get" are fairly low value. With drivers you're typically going to be just bubbling up the error to the test anyway. 
 - **You shouldn't use the default HTTP client**. Later we'll pass in a HTTP client so it can be configured with timeouts e.t.c., but for now we're just trying to get ourselves to a passing test
 
 Try and run the tests again, they should now compile, but not pass. 
@@ -323,7 +328,7 @@ func main() {
 
 ## Reflect
 
-The first step felt like an effort. We've made a number of `go` files to create and test a HTTP handler that returns a hard-coded string. This "iteration 0" ceremony and setup though will serve us well for further iterations. 
+The first step felt like a fair amount of effort. We've made a number of `go` files to create and test a HTTP handler that returns a hard-coded string. This "iteration 0" ceremony and setup though will serve us well for further iterations. 
 
 Adding or changing functionality should be simple, and controlled by driving it through the specification and dealing with whatever changes it drives us to do. Now the `DockerFile` and `testcontainers` are set up for our acceptance test, we shouldn't have to change these files unless the way we construct our application changes.
 
@@ -428,7 +433,7 @@ func Greet(name string) string {
 
 Now that we've separated our domain logic of greeting people into a separate function, we are now free to write unit tests for our greet function; certainly a lot simpler than testing it through a specification, that goes through a driver, that hits a web server, to finally get a string! 
 
-Wouldn't it be nice if we could re-use our specification here too. After-all, the point of the specification is it's decoupled from implementation details. 
+Wouldn't it be nice if we could re-use our specification here too? After-all, the point of the specification is it's decoupled from implementation details. 
 
 Let's give it a go in `greet_test.go`
 
@@ -452,6 +457,8 @@ This is frustrating, we have a thing that we "know" is a `Greeter`, but it's not
 > In [software engineering](https://en.wikipedia.org/wiki/Software_engineering), the **adapter pattern** is a [software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern) (also known as [wrapper](https://en.wikipedia.org/wiki/Wrapper_function), an alternative naming shared with the [decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern)) that allows the [interface](https://en.wikipedia.org/wiki/Interface_(computer_science)) of an existing [class](https://en.wikipedia.org/wiki/Class_(computer_science)) to be used as another interface.[[1\]](https://en.wikipedia.org/wiki/Adapter_pattern#cite_note-HeadFirst-1) It is often used to make existing classes work with others without modifying their [source code](https://en.wikipedia.org/wiki/Source_code).
 
 This is a lot of fancy words, for something that is quite simple. Which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations, but a language to describe certain solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication. 
+
+Adapters allow you to "adapt" things to fit into other parts of your system.
 
 Add this code in `greet.go`
 
