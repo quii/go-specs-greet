@@ -28,6 +28,32 @@ When written well, acceptance tests are an important part of a systems test suit
   - Start with hello, world, build from there
 - Intro to gRPC
 
+## Prerequisite material
+
+There's lots of ideas and inspiration for this chapter, a lot of it born from many years of frustration with acceptance tests causing lots of issues! The main two videos I would recommend you watch are
+
+- Dave Farley - Acceptance Tests
+- Nat Pryce - E2E functional tests that can run in milliseconds
+- GOOS - Nat Pryce & Steve Freeman
+
+
+
+## Anatomy of bad acceptance tests
+
+- Too many of them
+- Slow
+- Still have bugs
+- Can only run in a very specific environment, causing poor feedback loops
+
+
+
+## Anatomy of good acceptance tests
+
+TODO:
+
+- Talk about separation of domain and accidental complexity
+- Importance of polymorphism and re-use. Talk about how if the specs represent the "truths" of how we want the system to behave, we can verify it at various abstractions, from our domain code, to the application as a black box, to it being deployed to a staging environment, even to running it against live where CDNs can have an effect (bad cache headers or whatever)
+
 
 
 ## Let's go
@@ -848,7 +874,7 @@ greet.go:16: Expected values to be equal:
 
 Nice! We can see our driver is able to connect to our gRPC server in the test.
 
-Finally, we can call our domain code inside our `GreetServer`
+Now, call our domain code inside our `GreetServer`
 
 ```go
 type GreetServer struct {
@@ -2324,18 +2350,20 @@ The tests should now pass.
 
 ## Refactor
 
-This will be an exercise for you, the reader.
+Try doing this yourself.
 
 - Extract the "domain logic", away from the grpc server, like we did for `Greet`. Use the specification as a unit test against your domain logic
 - Have separate types in the protobuf to ensure the message types for `Greet` and `Curse` are decoupled.
 
 ## Implementing `Curse` for the HTTP server
 
-Again, an exercise for you, the reader. We have our domain-level specification, and we have our domain-level logic neatly separated. If you've followed this chapter, this should be very straightforward
+Again, an exercise for you, the reader. We have our domain-level specification, and we have our domain-level logic neatly separated. If you've followed this chapter, this should be very straightforward.
 
 - Add the specification to the existing acceptance test for the HTTP server
 - Update your `Driver`
 - Add the new endpoint to the server, and re-use the domain code to implement the functionality. You may wish to use `http.NewServeMux` to handle the routiing to the separate endpoints.
+
+Remember to work in small steps, commit and run your tests frequently. If you get really stuck [you can find my implementation on GitHub](https://github.com/quii/go-specs-greet).
 
 ## Wrapping up
 
