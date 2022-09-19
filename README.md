@@ -6,12 +6,16 @@ Source code for the chapter (currently WIP) "Scaling Acceptance Tests (and light
 
 This is a follow up to [Intro to acceptance tests](https://quii.gitbook.io/learn-go-with-tests/testing-fundamentals/intro-to-acceptance-tests)
 
+When written well, acceptance tests are an important part of a systems test suite. They can be used at different abstraction layers to give yourself confidence that your system works how you need it to.
+
+
+
 ## Ideas / things left to write about
 
 - Discuss Dave Farleys acceptance test youtube vid, and reference gopherconuk talk by Riya and I
 - Don't write an acceptance test for everything, reference the test pyramid again
-    - Adding language switch would demand a change in the spec as we're changing the API of the system
-    - Subsequent languages should be done via unit tests
+  - Adding language switch would demand a change in the spec as we're changing the API of the system
+  - Subsequent languages should be done via unit tests
 
 
 
@@ -19,9 +23,9 @@ This is a follow up to [Intro to acceptance tests](https://quii.gitbook.io/learn
 ## Things reader will learn
 
 - How to use specifications / drivers to decouple the accidental and essential complexity
-    - Normally when you're solving someone's problem, you're dealing with essential complexity, try and express that in the specification
+  - Normally when you're solving someone's problem, you're dealing with essential complexity, try and express that in the specification
 - Top-down [GOOS](http://www.growing-object-oriented-software.com)-thinking
-    - Start with hello, world, build from there
+  - Start with hello, world, build from there
 - Intro to gRPC
 
 
@@ -1150,7 +1154,7 @@ func GreetSpecification(t testing.TB, greeter Greeter) {
 }
 ```
 
-My IDE (Goland) takes care of the fuss of adding dependencies for me, but if you need to do it manually you'd do 
+My IDE (Goland) takes care of the fuss of adding dependencies for me, but if you need to do it manually you'd do
 
 `go get github.com/alecthomas/assert/v2`
 
@@ -1158,7 +1162,7 @@ Given Farley's acceptance test design, we now have a specification which is deco
 
 At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting"; I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams. I am confident to assert that most acceptance tests out in the wild are expensive to maintain, due to this inappropriate coupling; rather than the reverse, of being overly abstract.
 
-We can use this specification to verify any "system" that can `Greet`. 
+We can use this specification to verify any "system" that can `Greet`.
 
 ### First system: HTTP API
 
@@ -1170,13 +1174,13 @@ Our requirement is to provider a greeter service over HTTP. So we'll need to cre
 
 ## Write the test first
 
-The initial process for creating an acceptance test that compiles and runs your program, executes the test and then cleans everything up can be quite labour intensive. Much less intensive in the long-run that repeatedly having to these steps yourself to check behaviour though! 
+The initial process for creating an acceptance test that compiles and runs your program, executes the test and then cleans everything up can be quite labour intensive. Much less intensive in the long-run that repeatedly having to these steps yourself to check behaviour though!
 
-It's preferable to set this up at the _start_ of your project on a very small amount of functionality. I typically start all my projects with a "hello world" server implementation, with all of my tests set up, ready for me to build the real functionality easily. Trying to retrofit acceptance testing into an existing system can be challenging, and without the setup existing for a project, engineers can tend to be lazy and not bother at all. 
+It's preferable to set this up at the _start_ of your project on a very small amount of functionality. I typically start all my projects with a "hello world" server implementation, with all of my tests set up, ready for me to build the real functionality easily. Trying to retrofit acceptance testing into an existing system can be challenging, and without the setup existing for a project, engineers can tend to be lazy and not bother at all.
 
-Most development teams these days are shipping using Docker, so our acceptance tests will test a docker image we'll build of our program. 
+Most development teams these days are shipping using Docker, so our acceptance tests will test a docker image we'll build of our program.
 
-To help us use Docker in our tests, we're going to use [Testcontainers](https://golang.testcontainers.org). 
+To help us use Docker in our tests, we're going to use [Testcontainers](https://golang.testcontainers.org).
 
 `go get github.com/testcontainers/testcontainers-go`
 
@@ -1284,10 +1288,10 @@ The pattern to observe here is `Driver` implements the `Greeter` interface the s
 
 Notes:
 
-- You could argue that perhaps I should be writing tests to drive out the various `if err != nil`, but in my experience so long as you're not doing anything with the `err`, tests that say "you return the error you get" are fairly low value. With drivers you're typically going to be just bubbling up the error to the test anyway. 
+- You could argue that perhaps I should be writing tests to drive out the various `if err != nil`, but in my experience so long as you're not doing anything with the `err`, tests that say "you return the error you get" are fairly low value. With drivers you're typically going to be just bubbling up the error to the test anyway.
 - **You shouldn't use the default HTTP client**. Later we'll pass in a HTTP client so it can be configured with timeouts e.t.c., but for now we're just trying to get ourselves to a passing test
 
-Try and run the tests again, they should now compile, but not pass. 
+Try and run the tests again, they should now compile, but not pass.
 
 ```
 === RUN   TestGreeterHandler
@@ -1395,7 +1399,7 @@ Update the creation of the driver to pass in a client.
 }
 ```
 
-It's good practice to keep `main.go` as simple as possible, it only really aught to be concerned with piecing together the building blocks you make in to an application. 
+It's good practice to keep `main.go` as simple as possible, it only really aught to be concerned with piecing together the building blocks you make in to an application.
 
 Create a file called `handler.go` and move our code into there
 
@@ -1424,7 +1428,7 @@ func main() {
 
 ## Reflect
 
-The first step felt like a fair amount of effort. We've made a number of `go` files to create and test a HTTP handler that returns a hard-coded string. This "iteration 0" ceremony and setup though will serve us well for further iterations. 
+The first step felt like a fair amount of effort. We've made a number of `go` files to create and test a HTTP handler that returns a hard-coded string. This "iteration 0" ceremony and setup though will serve us well for further iterations.
 
 Adding or changing functionality should be simple, and controlled by driving it through the specification and dealing with whatever changes it drives us to do. Now the `DockerFile` and `testcontainers` are set up for our acceptance test, we shouldn't have to change these files unless the way we construct our application changes.
 
@@ -1506,9 +1510,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 ## Refactor
 
-In [HTTP Handlers Revisited](https://github.com/quii/learn-go-with-tests/blob/main/http-handlers-revisited.md) we discussed how important it is for HTTP handlers should only be response for handling HTTP concerns, any kind of "domain logic" should live outside of the handler. This allow us to develop domain logic in isolation of HTTP, making it simpler to test and understand. 
+In [HTTP Handlers Revisited](https://github.com/quii/learn-go-with-tests/blob/main/http-handlers-revisited.md) we discussed how important it is for HTTP handlers should only be response for handling HTTP concerns, any kind of "domain logic" should live outside of the handler. This allow us to develop domain logic in isolation of HTTP, making it simpler to test and understand.
 
-Let's pull apart these concerns. 
+Let's pull apart these concerns.
 
 ```go
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -1527,9 +1531,9 @@ func Greet(name string) string {
 
 ## A slight diversion in to the "adapter" design pattern
 
-Now that we've separated our domain logic of greeting people into a separate function, we are now free to write unit tests for our greet function; certainly a lot simpler than testing it through a specification, that goes through a driver, that hits a web server, to finally get a string! 
+Now that we've separated our domain logic of greeting people into a separate function, we are now free to write unit tests for our greet function; certainly a lot simpler than testing it through a specification, that goes through a driver, that hits a web server, to finally get a string!
 
-Wouldn't it be nice if we could re-use our specification here too? After-all, the point of the specification is it's decoupled from implementation details. 
+Wouldn't it be nice if we could re-use our specification here too? After-all, the point of the specification is it's decoupled from implementation details.
 
 Let's give it a go in `greet_test.go`
 
@@ -1546,13 +1550,13 @@ This would be nice, but it doesn't work
 	func(name string) string does not implement specifications.Greeter (missing Greet method)
 ```
 
-Our specification wants something that has a method `Greet()` not a function. 
+Our specification wants something that has a method `Greet()` not a function.
 
-This is frustrating, we have a thing that we "know" is a `Greeter`, but it's not quite in the right **shape** for the compiler to let us use it. This is what the **adapter** pattern caters for. 
+This is frustrating, we have a thing that we "know" is a `Greeter`, but it's not quite in the right **shape** for the compiler to let us use it. This is what the **adapter** pattern caters for.
 
 > In [software engineering](https://en.wikipedia.org/wiki/Software_engineering), the **adapter pattern** is a [software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern) (also known as [wrapper](https://en.wikipedia.org/wiki/Wrapper_function), an alternative naming shared with the [decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern)) that allows the [interface](https://en.wikipedia.org/wiki/Interface_(computer_science)) of an existing [class](https://en.wikipedia.org/wiki/Class_(computer_science)) to be used as another interface.[[1\]](https://en.wikipedia.org/wiki/Adapter_pattern#cite_note-HeadFirst-1) It is often used to make existing classes work with others without modifying their [source code](https://en.wikipedia.org/wiki/Source_code).
 
-This is a lot of fancy words, for something that is quite simple. Which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations, but a language to describe certain solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication. 
+This is a lot of fancy words, for something that is quite simple. Which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations, but a language to describe certain solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication.
 
 Adapters allow you to "adapt" things to fit into other parts of your system.
 
@@ -1579,7 +1583,7 @@ func TestGreet(t *testing.T) {
 
 ## Reflect
 
-This felt simple right? OK, maybe it was simple due to the nature of the problem, but this method of work gives you discipline, a simple repeatable way of designing your code from top to bottom. 
+This felt simple right? OK, maybe it was simple due to the nature of the problem, but this method of work gives you discipline, a simple repeatable way of designing your code from top to bottom.
 
 - Analyse your problem and identify a small improvement to your system that pushes you in the right direction
 - Change the spec
@@ -1598,13 +1602,13 @@ ok  	github.com/quii/go-specs-greet/cmd/httpserver	2.221s
 ?   	github.com/quii/go-specs-greet/specifications	[no test files]
 ```
 
-Now, imagine your CTO has now decided gRPC is _the future_. She wants you to expose this same functionality over a gRPC server, whilst maintaining the existing HTTP server. 
+Now, imagine your CTO has now decided gRPC is _the future_. She wants you to expose this same functionality over a gRPC server, whilst maintaining the existing HTTP server.
 
 This is an example of **accidental complexity**. Accidental complexity is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, e.t.c. **Essential complexity** is sometimes referred to as "domain logic", it's the inescapable rules and truths within the domain you work in. They should be expressable to a non-technical person, and it's valuable to model them in our systems both in **specifications** and **domain code, that is decoupled from accidental complexity**. Many repository structures and design patterns are mainly dealing with this concern. For instance "ports and adapters" asks that you separate out your domain code from anything to do with accidental complexity, that code lives in an "adapters" folder.
 
 Sometimes, it makes sense to do some refactoring before making a change
 
-> Make the change easy, then make the change. 
+> Make the change easy, then make the change.
 
 For that reason, let's gather our `http` code into a package called `httpserver` within an `adapters` folder
 
@@ -1637,7 +1641,7 @@ Finally, we can do a _tiny_ bit of tidying up of our acceptance test. If you con
 - Create _some_ driver to send messages to that port
 - Plug in the driver into the specification
 
-... you'll realise we have the same requirements for an acceptance test for the gRPC server! 
+... you'll realise we have the same requirements for an acceptance test for the gRPC server!
 
 The `adapters` folder seems a good a place as any, so inside a file called `docker.go` , encapsulate the first 2 steps in a function that we'll re-use next.
 
@@ -1709,7 +1713,7 @@ You can imagine this functionality being a new adapter in to our domain code. Fo
 - Should be able to re-use the specification;
 - Should be able to re-use the domain code.
 
-Create a new folder `grpcserver` inside `cmd` to house our new program and the corresponding acceptance test. Inside `cmd/grpc_server/greeter_server_test.go` add an acceptance test, which, not by coincedence, but by design, looks very similar to our HTTP server test.  
+Create a new folder `grpcserver` inside `cmd` to house our new program and the corresponding acceptance test. Inside `cmd/grpc_server/greeter_server_test.go` add an acceptance test, which, not by coincedence, but by design, looks very similar to our HTTP server test.
 
 ```go
 package main_test
@@ -1749,11 +1753,11 @@ The only differences are:
 ./greeter_server_test.go:26:12: undefined: grpcserver
 ```
 
-We haven't created a Driver yet, so it won't compile. 
+We haven't created a Driver yet, so it won't compile.
 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
-Create a `grpcserver` folder inside `adapters` and inside it create `driver.go` 
+Create a `grpcserver` folder inside `adapters` and inside it create `driver.go`
 
 ```go
 package grpcserver
@@ -1963,15 +1967,15 @@ Finally it passes! We have an acceptance test that proves our gRPC greet server 
 
 ## Refactor
 
-We committed a number of sins to get the test passing, but now they're passing we have the safety-net to refactor. 
+We committed a number of sins to get the test passing, but now they're passing we have the safety-net to refactor.
 
 ### Simplify main
 
-Like before, we don't want `main` having too much code inside it, and it feels inconsistent with our other implementation. We can move our new `GreetServer` into `adapters/grpcserver` as that's definitely where it should live. In terms of cohesion if we happen to change the service definition, we want the "blast-radius" of change to be confined to that area of our code. 
+Like before, we don't want `main` having too much code inside it, and it feels inconsistent with our other implementation. We can move our new `GreetServer` into `adapters/grpcserver` as that's definitely where it should live. In terms of cohesion if we happen to change the service definition, we want the "blast-radius" of change to be confined to that area of our code.
 
 ### Don't redial in our driver every time
 
-Currently we only have one test, but if we expand our specification (we will), it doesn't make sense for the Driver to redial for every RPC call. 
+Currently we only have one test, but if we expand our specification (we will), it doesn't make sense for the Driver to redial for every RPC call.
 
 ```go
 package grpcserver
@@ -2017,7 +2021,7 @@ func (d *Driver) getConnection() (*grpc.ClientConn, error) {
 }
 ```
 
-Here we're showing how we can use [`sync.Once`](https://pkg.go.dev/sync#Once) to ensure our `Driver` only attempts to create a connection to our server once. 
+Here we're showing how we can use [`sync.Once`](https://pkg.go.dev/sync#Once) to ensure our `Driver` only attempts to create a connection to our server once.
 
 Let's take a look at the current state of our project structure before moving on.
 
@@ -2058,7 +2062,7 @@ quii@Chriss-MacBook-Pro go-specs-greet % tree
 
 ### Consolidating `Dockerfile`
 
-You've probably noticed the two `Dockerfiles` are almost identical beyond the path to the binary we wish to build. 
+You've probably noticed the two `Dockerfiles` are almost identical beyond the path to the binary we wish to build.
 
 `Dockerfiles` can accept arguments to let us re-use them in different contexts, which sounds perfect for us. We can delete our 2 Dockerfiles and instead have one at the root of the project with the following
 
@@ -2137,11 +2141,11 @@ Acceptance tests are great in that they test the whole system works from a pure 
 - Quality of feedback is often not as focused as a unit test
 - Doesn't help you with internal quality, or design
 
-[The Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html) gives us the guidance around the kind of mix we want for our test suite, you should read Fowler's post for more detail but the very simplistic summary for this post is "lots of unit tests, and a few acceptance tests". 
+[The Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html) gives us the guidance around the kind of mix we want for our test suite, you should read Fowler's post for more detail but the very simplistic summary for this post is "lots of unit tests, and a few acceptance tests".
 
-For that reason, as a project grows you often may be in situations where the acceptance tests can take a few minutes to run. To offer a friendly developer experience for people checking out your project, you can enable developers to run the different kinds of tests separately. 
+For that reason, as a project grows you often may be in situations where the acceptance tests can take a few minutes to run. To offer a friendly developer experience for people checking out your project, you can enable developers to run the different kinds of tests separately.
 
-It's preferable that running `go test ./...` should be runnable with no further set up from an engineer, beyond say a few key dependencies such as the Go compiler (obviously) and perhaps Docker. 
+It's preferable that running `go test ./...` should be runnable with no further set up from an engineer, beyond say a few key dependencies such as the Go compiler (obviously) and perhaps Docker.
 
 Go provides a mechanism for engineers to run only "short" tests with the [short flag](https://pkg.go.dev/testing#Short)
 
@@ -2169,13 +2173,13 @@ unit-tests:
 
 ### Primitive obsession
 
-We want our specifications to be an abstract description of our domain, but we have coupled it directly to some very specific types. Namely, `strings`. 
+We want our specifications to be an abstract description of our domain, but we have coupled it directly to some very specific types. Namely, `strings`.
 
-TODO: Some resources on primitive obsession. 
+TODO: Some resources on primitive obsession.
 
 ## Iterating on our work
 
-With all this effort, you'd hope extending our system will now be simple. Making a system that is simple to work on, is not neccessairily easy, but it's worth the time, and is substantially easier to do when you start a project. 
+With all this effort, you'd hope extending our system will now be simple. Making a system that is simple to work on, is not neccessairily easy, but it's worth the time, and is substantially easier to do when you start a project.
 
 Let's extend our API to include a "curse" functionality.
 
@@ -2197,12 +2201,145 @@ func CurseSpecification(t *testing.T, meany MeanGreeter) {
 
 Pick one of our acceptance tests and try to use the specification
 
+```go
+func TestGreeterServer(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
+	var (
+		ctx    = context.Background()
+		port   = "50051"
+		addr   = fmt.Sprintf("localhost:%s", port)
+		driver = grpcserver.Driver{Addr: addr}
+	)
+
+	t.Cleanup(driver.Close)
+	adapters.StartDockerServer(ctx, t, port, "grpcserver")
+	specifications.GreetSpecification(t, &driver)
+	specifications.CurseSpecification(t, &driver)
+}
+```
+
 ## Try to run the test
 
+```
+# github.com/quii/go-specs-greet/cmd/grpcserver_test [github.com/quii/go-specs-greet/cmd/grpcserver.test]
+./greeter_server_test.go:27:39: cannot use &driver (value of type *grpcserver.Driver) as type specifications.MeanGreeter in argument to specifications.CurseSpecification:
+	*grpcserver.Driver does not implement specifications.MeanGreeter (missing Curse method)
 
+```
+
+Our `Driver` doesn't support `Curse` yet.
 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
+Remember we're just trying to get the test to run, so add the method to `Driver`
+
+```go
+func (d *Driver) Curse(name string) (string, error) {
+	return "", nil
+}
+```
+
+If you try again, the test should compile, run, and fail
+
+```
+greet.go:26: Expected values to be equal:
++Go to hell, Chris!
+\ No newline at end of file
+```
+
 ## Write enough code to make it pass
 
+We'll need to update our protocol buffer specification have a `Curse` method on it, and then regenerate our code.
+
+```protobuf
+service Greeter {
+  rpc Greet (GreetRequest) returns (GreetReply) {}
+  rpc Curse (GreetRequest) returns (GreetReply) {}
+}
+```
+
+You could argue that re-using the types `GreetRequest` and `GreetReply` is inappropriate coupling, but we can deal with that in the refactoring stage. As I keep stressing, we're just trying to get the test passing so we verify the software works, _then_ we can make it nice.
+
+Re-generate our code with (inside `adapters/grpcserver`).
+
+```
+protoc --go_out=. --go_opt=paths=source_relative \
+    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+    greet.proto
+```
+
+### Update driver
+
+Now the client code has been updated, we can now call `Curse` in our `Driver`
+
+```go
+func (d *Driver) Curse(name string) (string, error) {
+	conn, err := d.getConnection()
+	if err != nil {
+		return "", err
+	}
+
+	client := NewGreeterClient(conn)
+	greeting, err := client.Curse(context.Background(), &GreetRequest{
+		Name: name,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return greeting.Message, nil
+}
+```
+
+### Update server
+
+Finally, we need to add the `Curse` method to our `Server`
+
+```go
+package grpcserver
+
+import (
+	"context"
+	"fmt"
+
+	gospecsgreet "github.com/quii/go-specs-greet"
+)
+
+type GreetServer struct {
+	UnimplementedGreeterServer
+}
+
+func (g GreetServer) Curse(ctx context.Context, request *GreetRequest) (*GreetReply, error) {
+	return &GreetReply{Message: fmt.Sprintf("Go to hell, %s!", request.Name)}, nil
+}
+
+func (g GreetServer) Greet(ctx context.Context, request *GreetRequest) (*GreetReply, error) {
+	return &GreetReply{Message: gospecsgreet.Greet(request.Name)}, nil
+}
+```
+
+The tests should now pass.
+
 ## Refactor
+
+This will be an exercise for you, the reader.
+
+- Extract the "domain logic", away from the grpc server, like we did for `Greet`. Use the specification as a unit test against your domain logic
+- Have separate types in the protobuf to ensure the message types for `Greet` and `Curse` are decoupled.
+
+## Implementing `Curse` for the HTTP server
+
+Again, an exercise for you, the reader. We have our domain-level specification, and we have our domain-level logic neatly separated. If you've followed this chapter, this should be very straightforward
+
+- Add the specification to the existing acceptance test for the HTTP server
+- Update your `Driver`
+- Add the new endpoint to the server, and re-use the domain code to implement the functionality. You may wish to use `http.NewServeMux` to handle the routiing to the separate endpoints.
+
+## Wrapping up
+
+From here, hopefully you can see the predictable, structuted workflow for driving change on our application with this approach.
+
+On your day job you can imagine talking to a stakeholder who wants to extend the system you work on in some way. Simply capture it in a domain-centric, implementation-agnostic way in the specification, and use it as a north-star towards your efforts. By separating out the concerns of essential complexity and accidental complexity, your work will feel less ad-hoc, and more structured and deliberate. 
+

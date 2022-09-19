@@ -15,6 +15,23 @@ type Driver struct {
 	conn           *grpc.ClientConn
 }
 
+func (d *Driver) Curse(name string) (string, error) {
+	conn, err := d.getConnection()
+	if err != nil {
+		return "", err
+	}
+
+	client := NewGreeterClient(conn)
+	greeting, err := client.Curse(context.Background(), &CurseRequest{
+		Name: name,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return greeting.Message, nil
+}
+
 func (d *Driver) Greet(name string) (string, error) {
 	conn, err := d.getConnection()
 	if err != nil {
