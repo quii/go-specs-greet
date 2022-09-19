@@ -11,15 +11,17 @@ type Greeter interface {
 }
 
 func GreetSpecification(t *testing.T, greeter Greeter) {
-	t.Run("greets a person", func(t *testing.T) {
-		got, err := greeter.Greet("Mike")
-		assert.NoError(t, err)
-		assert.Equal(t, got, "Hello, Mike")
-	})
+	got, err := greeter.Greet("Mike")
+	assert.NoError(t, err)
+	assert.Equal(t, got, "Hello, Mike")
+}
 
-	t.Run("when no name is supplied, greet the world", func(t *testing.T) {
-		got, err := greeter.Greet("")
-		assert.NoError(t, err)
-		assert.Equal(t, got, "Hello, World")
-	})
+type MeanGreeter interface {
+	Curse(name string) (string, error)
+}
+
+func CurseSpecification(t *testing.T, meany MeanGreeter) {
+	got, err := meany.Curse("Chris")
+	assert.NoError(t, err)
+	assert.Equal(t, got, "Go to hell, Chris!")
 }
