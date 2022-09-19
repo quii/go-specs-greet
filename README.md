@@ -2,6 +2,8 @@
 
 Source code for the chapter (currently WIP) "Scaling Acceptance Tests (and light intro to gRPC)"
 
+**Idea**: Dog-food this chapter on twitch before releasing.
+
 # Learn Go with Tests - Scaling Acceptance Tests (and light intro to gRPC)
 
 This is a follow up to [Intro to acceptance tests](https://quii.gitbook.io/learn-go-with-tests/testing-fundamentals/intro-to-acceptance-tests)
