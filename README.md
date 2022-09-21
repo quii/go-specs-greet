@@ -38,7 +38,7 @@ There's lots of ideas and inspiration for this chapter, a lot of it born from ma
 
 
 
-## Anatomy of bad acceptance tests
+## Anatomy of bad acceptance tests
 
 For many years, I've worked for several companies and teams. Each of them recognised the need for acceptance tests, some way to test a system from a user's point of view and verify it works how it's intended, but almost without exception, the cost of these tests become a real problem for the team.
 
@@ -58,11 +58,11 @@ TODO:
 
 ![Dave Farley on Acceptance Tests](https://i.imgur.com/nPwpihG.png)
 
-## Let's go
+## Let's go
 
 Create a new project
 
-`go mod init github.com/quii/go-specs-greet`
+`go mod init github.com/quii/go-specs-greet` (you can put whatever you like here)
 
 Make a folder `specifications` to hold our specification, and add a file `greet.go`
 
