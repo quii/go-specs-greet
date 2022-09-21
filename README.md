@@ -20,8 +20,6 @@ When written well, acceptance tests are an important part of a systems test suit
   - Subsequent languages should be done via unit tests
 
 
-
-
 ## Things reader will learn
 
 - How to use specifications / drivers to decouple the accidental and essential complexity
@@ -44,11 +42,12 @@ There's lots of ideas and inspiration for this chapter, a lot of it born from ma
 
 For many years, I've worked for several companies and teams. Each of them recognised the need for acceptance tests, some way to test a system from a user's point of view and verify it works how it's intended, but almost without exception, the cost of these tests become a real problem for the team.
 
-- Slow
-- Still have numerous bugs
+- Slow to run
+- System still have numerous bugs
 - Brittle, expensive to maintain, seem to make changing the software harder than it aught to be
-- Can only run in a very specific environment, causing poor feedback loops
+- Can only run in a very specific environment, causing slow and poor feedback loops
 
+This all stems from not applying well-established and practiced engineering habits written by the authors mentioned above and others. You can't write acceptance tests just in the same way as you write unit tests, they require more thought and slightly different practices.
 
 ## Anatomy of good acceptance tests
 
@@ -57,7 +56,7 @@ TODO:
 - Talk about separation of domain and accidental complexity
 - Importance of polymorphism and re-use. Talk about how if the specs represent the "truths" of how we want the system to behave, we can verify it at various abstractions, from our domain code, to the application as a black box, to it being deployed to a staging environment, even to running it against live where CDNs can have an effect (bad cache headers or whatever)
 
-
+![Dave Farley on Acceptance Tests](https://i.imgur.com/nPwpihG.png)
 
 ## Let's go
 
@@ -92,6 +91,8 @@ My IDE (Goland) takes care of the fuss of adding dependencies for me, but if you
 `go get github.com/alecthomas/assert/v2`
 
 Given Farley's acceptance test design, we now have a specification which is decoupled from implementation. It doesn't know, or care about _how_ we `Greet`, it's just concerned with the logic. This "logic" isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate.
+
+You could view the interface as part of forming our DSL, and the `GreetSpecification` being a test case. (as a project grows, you may find the need to abstract differently, but for now, this is fine)
 
 At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting"; I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams. I am confident to assert that most acceptance tests out in the wild are expensive to maintain, due to this inappropriate coupling; rather than the reverse, of being overly abstract.
 
