@@ -161,10 +161,6 @@ func TestGreeterServer(t *testing.T) {
 		assert.NoError(t, container.Terminate(ctx))
 	})
 
-	client := http.Client{
-		Timeout: 1 * time.Second,
-	}
-
 	driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
 	specifications.GreetSpecification(t, driver)
 }
