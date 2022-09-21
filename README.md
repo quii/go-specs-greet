@@ -10,7 +10,7 @@ This is a follow up to [Intro to acceptance tests](https://quii.gitbook.io/learn
 
 When written well, acceptance tests are an important part of a systems test suite. They can be used at different abstraction layers to give yourself confidence that your system works how you need it to.
 
-
+What you'll appreciate after reading this though, is that not only are acceptance test useful for verification, but they can also be used in the development process, and help us design our system in a more deliberate and structured way.
 
 ## Ideas / things left to write about
 
