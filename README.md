@@ -42,11 +42,12 @@ There's lots of ideas and inspiration for this chapter, a lot of it born from ma
 
 ## Anatomy of bad acceptance tests
 
-- Too many of them
-- Slow
-- Still have bugs
-- Can only run in a very specific environment, causing poor feedback loops
+For many years, I've worked for several companies and teams. Each of them recognised the need for acceptance tests, some way to test a system from a user's point of view and verify it works how it's intended, but almost without exception, the cost of these tests become a real problem for the team.
 
+- Slow
+- Still have numerous bugs
+- Brittle, expensive to maintain, seem to make changing the software harder than it aught to be
+- Can only run in a very specific environment, causing poor feedback loops
 
 
 ## Anatomy of good acceptance tests
