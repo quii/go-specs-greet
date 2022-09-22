@@ -10,7 +10,7 @@ This is a follow up to [Intro to acceptance tests](https://quii.gitbook.io/learn
 
 When written well, acceptance tests are an important part of a systems test suite. They can be used at different abstraction layers to give yourself confidence that your system works how you need it to.
 
-What you'll appreciate after reading this though, is that not only are acceptance test useful for verification, but they can also be used in the development process, and help us design our system in a more deliberate and structured way.
+What you'll appreciate after reading this though, is that not only are acceptance test useful for verification, but they can also be used in the development process, and help us change our system in a more deliberate and methodical manner.
 
 ## Ideas / things left to write about
 
@@ -40,21 +40,34 @@ There's lots of ideas and inspiration for this chapter, a lot of it born from ma
 
 ## Anatomy of bad acceptance tests
 
-For many years, I've worked for several companies and teams. Each of them recognised the need for acceptance tests, some way to test a system from a user's point of view and verify it works how it's intended, but almost without exception, the cost of these tests become a real problem for the team.
+For many years, I've worked for several companies and teams. Each of them recognised the need for acceptance tests, some way to test a system from a user's point of view and verify it works how it's intended, but almost without exception, the cost of these tests became a real problem for the team.
 
 - Slow to run
 - System still have numerous bugs
 - Brittle, expensive to maintain, seem to make changing the software harder than it aught to be
 - Can only run in a very specific environment, causing slow and poor feedback loops
 
-This all stems from not applying well-established and practiced engineering habits written by the authors mentioned above and others. You can't write acceptance tests just in the same way as you write unit tests, they require more thought and slightly different practices.
+This all stems from not applying well-established and practiced engineering habits written by the authors mentioned above and others. You can't write acceptance tests just in the same way as you write unit tests, they require more thought and different practices.
 
-## Anatomy of good acceptance tests
+## TODO/WIP: Anatomy of good acceptance tests
+
+Acceptance tests start to spiral out of control when they become overly coupled to implementation detail. 
+
+Let's say you intend to write an acceptance test around a website you're building. You decide to use a headless web browser to simulate a user clicking buttons on your website to help you verify it does what it needs to do. 
+
+Over time, the markup of your website has to change as new features are discovered and engineers bike shed over whether something should be an `<article>` or a `<section>` for the billionth time. Even though your team are only making minor changes to the system that are barely noticeable to the real user, you find yourself having to frequently update multiple tests for boring reasons. 
 
 TODO:
 
 - Talk about separation of domain and accidental complexity
 - Importance of polymorphism and re-use. Talk about how if the specs represent the "truths" of how we want the system to behave, we can verify it at various abstractions, from our domain code, to the application as a black box, to it being deployed to a staging environment, even to running it against live where CDNs can have an effect (bad cache headers or whatever)
+  - Double up as documentation
+  - Think about the _actual_ problem, not silly things like gRPC or HTTP
+    - Verify useful things, not implementation details
+    - Make tests less brittle, if implementation details change, it shouldn't have a big effect on the actual requirements. 
+      - What the system does will remain fairly constant
+      - How it works, needs to be as flexible as possible
+
 
 ![Dave Farley on Acceptance Tests](https://i.imgur.com/nPwpihG.png)
 
@@ -184,6 +197,10 @@ We're still practicing TDD here! It's a big first step we have to make, we need 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
 Hold your nose, and remember we can refactor when the test is passing. Here's the code for our driver in `driver.go`
+
+
+
+TODO: just implement interface on driver first, and then do Dockerfiles
 
 ```go
 package go_specs_greet
@@ -989,6 +1006,8 @@ quii@Chriss-MacBook-Pro go-specs-greet % tree
 
 ### Consolidating `Dockerfile`
 
+TODO: might be worth explaining, or at least linking to docker before introducing it
+
 You've probably noticed the two `Dockerfiles` are almost identical beyond the path to the binary we wish to build.
 
 `Dockerfiles` can accept arguments to let us re-use them in different contexts, which sounds perfect for us. We can delete our 2 Dockerfiles and instead have one at the root of the project with the following
@@ -1284,4 +1303,10 @@ From here, hopefully you can see the predictable, structuted workflow for drivin
 
 On your day job you can imagine talking to a stakeholder who wants to extend the system you work on in some way. Simply capture it in a domain-centric, implementation-agnostic way in the specification, and use it as a north-star towards your efforts. By separating out the concerns of essential complexity and accidental complexity, your work will feel less ad-hoc, and more structured and deliberate. 
 
+### Further material
+
+- In this example our "DSL" is not much of a DSL, we just used interfaces to decouple our specification from the real-world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
+- [Growing Object-Oriented Software, Guided by Tests](http://www.growing-object-oriented-software.com) is a classic. It demonstrates how to apply this "London style", "top down" approach to writing software in a practical way. Anyone who has enjoyed this book should get a lot of value out of reading this
+- [End to end functional tests that run in milliseconds](https://www.youtube.com/watch?v=Fk4rCn4YLLU) is a video by Nat Pryce (co-author of GOOS) reflecting on his team's efforts to apply these ideas to a big, complicated system in publishing. 
+- Finally, [Riya](https://twitter.com/dattaniriya) and I [spoke at GopherconUK in 2021](https://www.youtube.com/watch?v=ZMWJCk_0WrY) about some of this in our talk called "BDD and Acceptance Tests".
 
