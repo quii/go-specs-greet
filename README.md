@@ -8,7 +8,7 @@ Source code for the chapter (currently WIP) "Scaling Acceptance Tests (and light
 
 This is a follow-up to [Intro to acceptance tests](https://quii.gitbook.io/learn-go-with-tests/testing-fundamentals/intro-to-acceptance-tests)
 
-When written well, acceptance tests are essential to a systems test suite. They can be used at different abstraction layers to give you confidence that your system works how you need it to. Your ability to have good acceptance tests has a direct impact on your ability to confidently evolve your system over time with a reasonable cost of change.
+When written well, acceptance tests are essential to a systems test suite. They can be used at different abstraction layers to give you confidence that your system works how you need it to. Your ability to have good acceptance tests directly impacts your ability to confidently evolve your system over time with a reasonable cost of change.
 
 What you'll appreciate after reading this, though, is that not only are acceptance tests useful for verification, but they can also be used in the development process and help us change our system more deliberately and methodically.
 
@@ -49,11 +49,11 @@ Too often, though, the latter is the reason acceptance tests have to change. To 
 
 ![Riya and myself talking about separating concerns in our tests](https://i.imgur.com/bbG6z57.png)
 
-This stems from not applying well-established and practised engineering habits written by the authors mentioned above. You can't write acceptance tests just like you write unit tests; they require more thought and different practices.
+This stems from not applying well-established and practised engineering habits written by the authors mentioned above. You can't write acceptance tests like unit tests; they require more thought and different practices.
 
 ## Anatomy of good acceptance tests
 
-If we want to have acceptance tests that only change when we change behaviour and not implementation detail, it stands to reason that we need to separate those concerns.
+If we want acceptance tests that only change when we change behaviour and not an implementation detail, it stands to reason that we need to separate those concerns.
 
 ### On types of complexity
 
@@ -64,7 +64,7 @@ As software engineers, we have to deal with two kinds of complexity.
 - **Essential complexity** is sometimes referred to as "domain logic", it's the inescapable rules and truths within the domain you work in.
   - For example, "if an account owner takes out more money than is available, they are overdrawn". This statement says nothing about computers; this statement was true before computers were even used in banks!
 
-Essential complexity should be expressable to a non-technical person, and it's valuable to model them in our systems in our "domain" code and in our acceptance tests.
+Essential complexity should be expressable to a non-technical person, and it's valuable to model them in our systems in our "domain" code and our acceptance tests.
 
 ### Separation of concerns
 
@@ -1325,34 +1325,35 @@ Try doing this yourself.
 
 ## Implementing `Curse` for the HTTP server
 
-Again, an exercise for you, the reader. We have our domain-level specification, and we have our domain-level logic neatly separated. If you've followed this chapter, this should be very straightforward.
+Again, an exercise for you, the reader. We have our domain-level specification and our domain-level logic neatly separated. If you've followed this chapter, this should be very straightforward.
 
 - Add the specification to the existing acceptance test for the HTTP server
 - Update your `Driver`
-- Add the new endpoint to the server, and re-use the domain code to implement the functionality. You may wish to use `http.NewServeMux` to handle the routiing to the separate endpoints.
+- Add the new endpoint to the server, and re-use the domain code to implement the functionality. You may wish to use `http.NewServeMux` to handle the routeing to the separate endpoints.
 
 Remember to work in small steps, commit and run your tests frequently. If you get really stuck [you can find my implementation on GitHub](https://github.com/quii/go-specs-greet).
 
 ## Enhance both systems by updating the domain logic as a unit test
 
-As mentioned, not every change to a system needs to be driven via an acceptance test. Permutations of business rules and edge cases should be simple to drive via a unit test, if you have separated concerns well.
+As mentioned, not every change to a system needs to be driven via an acceptance test. Permutations of business rules and edge cases should be simple to drive via a unit test if you have separated concerns well.
 
-Add a unit test to our `Greet` function to default `name` to `World` if it is empty. You should see how simple this is, and then the business rules are reflected in both applications for "free".
+Add a unit test to our `Greet` function to default the `name` to `World` if it is empty. You should see how simple this is, and then the business rules are reflected in both applications for "free".
 
 ## Wrapping up
 
 Hopefully, with this approach, you can see our application's predictable, structured workflow for driving change.
 
-On your day job, you can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in the specification, and use it as a north-star towards your efforts. By separating essential and accidental complexity concerns, your work will feel less ad-hoc and more structured and deliberate.
+On your day job, you can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in the specification, and use it as a north-star towards your efforts. Separating essential and accidental complexity concerns will make your work less ad-hoc and more structured and deliberate.
 
 ### What has been covered
 
-- Writing abstract specifications which allow you to express the essential complexity of the problem you're solving, and removing accidental complexity. This allows you to re-use the speciifcations in different contexts.
+- Writing abstract specifications allows you to express the essential complexity of the problem you're solving and remove accidental complexity. This will enable you to re-use the specifications in different contexts.
 - How to use Testcontainers to spin up your system
 - A brief intro into containerising your application with Docker
 - gRPC
 
 ### Further material
 
-- In this example our "DSL" is not much of a DSL, we just used interfaces to decouple our specification from the real-world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
+- In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - [Growing Object-Oriented Software, Guided by Tests](http://www.growing-object-oriented-software.com) is a classic. It demonstrates how to apply this "London style", "top down" approach to writing software in a practical way. Anyone who has enjoyed this book should get a lot of value out of reading this
+
