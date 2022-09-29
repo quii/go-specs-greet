@@ -16,14 +16,14 @@ What you'll appreciate after reading this, though, is that not only are acceptan
 
 There are many ideas and inspiration for this chapter, which is born from many years of frustration with acceptance tests causing many issues! The main two videos I would recommend you watch are
 
-- Dave Farley - Acceptance Tests
-- Nat Pryce - E2E functional tests that can run in milliseconds
+- Dave Farley - [How to write acceptance tests](https://www.youtube.com/watch?v=JDD5EEJgpHU)
+- Nat Pryce - [E2E functional tests that can run in milliseconds](https://www.youtube.com/watch?v=Fk4rCn4YLLU)
 
 GOOS was such an important book for many software engineers, including myself. The approach it prescribes is the one I coach engineers I work with to follow.
 
-- GOOS - Nat Pryce & Steve Freeman
+- [GOOS](http://www.growing-object-oriented-software.com) - Nat Pryce & Steve Freeman
 
-Finally, Riya and I spoke about this topic in the context of BDD at GopherconUK.
+Finally, [Riya](https://twitter.com/dattaniriya) and I spoke about this topic in the context of BDD with our talk [Acceptance tests, BDD and Go](https://www.youtube.com/watch?v=ZMWJCk_0WrY).
 
 ## Anatomy of bad acceptance tests
 
@@ -1333,6 +1333,12 @@ Again, an exercise for you, the reader. We have our domain-level specification, 
 
 Remember to work in small steps, commit and run your tests frequently. If you get really stuck [you can find my implementation on GitHub](https://github.com/quii/go-specs-greet).
 
+## Enhance both systems by updating the domain logic as a unit test
+
+As mentioned, not every change to a system needs to be driven via an acceptance test. Permutations of business rules and edge cases should be simple to drive via a unit test, if you have separated concerns well.
+
+Add a unit test to our `Greet` function to default `name` to `World` if it is empty. You should see how simple this is, and then the business rules are reflected in both applications for "free".
+
 ## Wrapping up
 
 Hopefully, with this approach, you can see our application's predictable, structured workflow for driving change.
@@ -1350,6 +1356,3 @@ On your day job, you can imagine talking to a stakeholder who wants to extend th
 
 - In this example our "DSL" is not much of a DSL, we just used interfaces to decouple our specification from the real-world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - [Growing Object-Oriented Software, Guided by Tests](http://www.growing-object-oriented-software.com) is a classic. It demonstrates how to apply this "London style", "top down" approach to writing software in a practical way. Anyone who has enjoyed this book should get a lot of value out of reading this
-- [End to end functional tests that run in milliseconds](https://www.youtube.com/watch?v=Fk4rCn4YLLU) is a video by Nat Pryce (co-author of GOOS) reflecting on his team's efforts to apply these ideas to a big, complicated system in publishing.
-- Finally, [Riya](https://twitter.com/dattaniriya) and I [spoke at GopherconUK in 2021](https://www.youtube.com/watch?v=ZMWJCk_0WrY) about some of this in our talk called "BDD and Acceptance Tests".
-
