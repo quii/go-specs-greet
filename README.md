@@ -139,6 +139,8 @@ Too many times, I've encountered engineers who have made a chunk of code, in iso
 
 ## Enough talk, time to code
 
+Unlike other chapters, you'll need Docker installed.
+
 Create a new project
 
 `go mod init github.com/quii/go-specs-greet` (you can put whatever you like here)
@@ -169,19 +171,19 @@ My IDE (Goland) takes care of the fuss of adding dependencies for me, but if you
 
 `go get github.com/alecthomas/assert/v2`
 
-Given Farley's acceptance test design, we now have a decoupled specification from implementation. It doesn't know or care about _how_ we `Greet`; it's just concerned with the logic. This "logic" isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate.
+Given Farley's acceptance test design (Specification->DSL->Driver->System), we now have a decoupled specification from implementation. It doesn't know or care about _how_ we `Greet`; it's just concerned with the logic. This "logic" isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate.
 
-You could view the interface as part of our DSL, and the `GreetSpecification` is a test case. (as a project grows, you may find the need to abstract differently, but for now, this is fine)
+You could view the interface as our first step of a DSL; as the project grows, you may find the need to abstract differently, but for now, this is fine.
 
-At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting"; I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams. I am confident that most acceptance tests out in the wild are expensive to maintain due to this inappropriate coupling; rather than the reverse of being overly abstract.
+At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting"; **I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams**. I am confident that most acceptance tests out in the wild are expensive to maintain due to this inappropriate coupling; rather than the reverse of being overly abstract.
 
 We can use this specification to verify any "system" that can `Greet`.
 
 ### First system: HTTP API
 
-Our requirement is to provider a greeter service over HTTP. So we'll need to create:
+Our requirement is to provide a "greeter service" over HTTP. So we'll need to create:
 
-1. A **driver**. In this case, one works with an HTTP system by using an **HTTP client**. This code will know how to work with our API. Drivers implement the interface that specifications define.
+1. A **driver**. In this case, one works with an HTTP system by using an **HTTP client**. This code will know how to work with our API. Drivers translate DSLs into system-specific calls; in our case, the driver will implement the interface that specifications define.
 2. A HTTP server with a greet API
 3. A test, which is responsible for managing the life-cycle of spinning up the server and then plugging the driver into the specification to run it as a test
 
@@ -191,7 +193,7 @@ The initial process for creating a black-box test that compiles and runs your pr
 
 Most development teams are shipping using docker, so our acceptance tests will test a docker image we'll build for our program.
 
-To help us use Docker in our tests, we're going to use [Testcontainers](https://golang.testcontainers.org).
+To help us use Docker in our tests, we will use [Testcontainers](https://golang.testcontainers.org). Testcontainers gives us a programmatic way to build Docker images and manage container lifecycles.
 
 `go get github.com/testcontainers/testcontainers-go`
 
@@ -592,7 +594,7 @@ This felt simple right? OK, maybe it was simply due to the nature of the problem
 - Analyse your problem and identify a slight improvement to your system that pushes you in the right direction
 - Change the spec
 - Follow the compilation errors until the test runs
-- Update your implementation
+- Update your implementation to make the system behave according to the specification
 - Refactor
 
 After the pain of the first iteration, we didn't have to edit our acceptance test code because we have the separation of specifications, drivers and implementation. Changing our specification required us to update our driver and finally our implementation, but the boilerplate code around _how_ to spin up the system as a container was unaffected.
@@ -646,7 +648,7 @@ Finally, we can do a _tiny_ bit of tidying up our acceptance test. If you consid
 
 - Build a docker image
 - Wait for it to be listening on _some_ port
-- Create a driver that understands how to translate the specification into system specific calls
+- Create a driver that understands how to translate the DSL into system specific calls
 - Plug in the driver into the specification
 
 ... you'll realise we have the same requirements for an acceptance test for the gRPC server!
@@ -818,7 +820,7 @@ You should find now that the test fails because our server is not listening on t
 
 ### gRPC
 
-If you're unfamiliar with gRPC, I'd start by looking at the [gRPC website. Still, for this chapter, it's just another kind of adapter into our system, a way for other systems to call (**r**emote **p**rocedure **c**all) our excellent domain code.
+If you're unfamiliar with gRPC, I'd start by looking at the [gRPC website](https://grpc.io). Still, for this chapter, it's just another kind of adapter into our system, a way for other systems to call (**r**emote **p**rocedure **c**all) our excellent domain code.
 
 The twist is you define a "service definition" using Protocol Buffers. You then generate server and client code from the definition. This not only works for Go but for most mainstream languages too. This means you can share a definition with other teams in your company who may not even write Go and can still do service-to-service communication smoothly.
 
@@ -846,7 +848,7 @@ message GreetReply {
 }
 ```
 
-Following this definition, you don't need to be an expert in Protocol Buffers. We're defining a service with a Greet method and then describing the incoming and outgoing message types.
+To understand this definition, you don't need to be an expert in Protocol Buffers. We define a service with a Greet method and then describe the incoming and outgoing message types.
 
 Inside `adapters/grpcserver` run the following to generate the client and server code
 
@@ -941,11 +943,13 @@ type GreeterServer interface {
 }
 ```
 
-- Listen on the port
-- We create a `GreetServer` that implements this interface, and then register it with `grpcServer.RegisterGreeterServer`, along with a `grpc.Server`.
-- Use the server with the listener
+Our `main` function:
 
-It wouldn't be a massive extra effort to call our domain code inside `greetServer.Greet` rather than hard-coding `fix-me` in the message, but I'd like to run our acceptance test first to see if everything is working end to end on a transport level.
+- Listens on a port
+- Creates a `GreetServer` that implements the interface, and then registers it with `grpcServer.RegisterGreeterServer`, along with a `grpc.Server`.
+- Uses the server with the listener
+
+It wouldn't be a massive extra effort to call our domain code inside `greetServer.Greet` rather than hard-coding `fix-me` in the message, but I'd like to run our acceptance test first to see if everything is working on a transport level and verify the failing test output.
 
 ```
 greet.go:16: Expected values to be equal:
@@ -977,7 +981,7 @@ We committed several sins to get the test passing, but now they're passing, we h
 
 ### Simplify main
 
-As before, we don't want `main` to have too much code inside it, which feels inconsistent with our other implementation. We can move our new `GreetServer` into `adapters/grpcserver` as that's where it should live. In terms of cohesion, if we change the service definition, we want the "blast-radius" of change to be confined to that area of our code.
+As before, we don't want `main` to have too much code inside it. We can move our new `GreetServer` into `adapters/grpcserver` as that's where it should live. In terms of cohesion, if we change the service definition, we want the "blast-radius" of change to be confined to that area of our code.
 
 ### Don't redial in our driver every time
 
@@ -999,15 +1003,15 @@ type Driver struct {
 
 	connectionOnce sync.Once
 	conn           *grpc.ClientConn
+	client         GreeterClient
 }
 
 func (d *Driver) Greet(name string) (string, error) {
-	conn, err := d.getConnection()
+	client, err := d.getClient()
 	if err != nil {
 		return "", err
 	}
 
-	client := NewGreeterClient(conn)
 	greeting, err := client.Greet(context.Background(), &GreetRequest{
 		Name: name,
 	})
@@ -1018,12 +1022,13 @@ func (d *Driver) Greet(name string) (string, error) {
 	return greeting.Message, nil
 }
 
-func (d *Driver) getConnection() (*grpc.ClientConn, error) {
+func (d *Driver) getClient() (GreeterClient, error) {
 	var err error
 	d.connectionOnce.Do(func() {
 		d.conn, err = grpc.Dial(d.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		d.client = NewGreeterClient(d.conn)
 	})
-	return d.conn, err
+	return d.client, err
 }
 ```
 
@@ -1062,13 +1067,11 @@ quii@Chriss-MacBook-Pro go-specs-greet % tree
     └── greet.go
 ```
 
-- Adapters have cohesive units of functionality grouped together
-- cmd holds our applications and acceptance tests in a very consistent structure
+- `adapters` have cohesive units of functionality grouped together
+- `cmd` holds our applications and corresponding acceptance tests
 - Our domain code lives at the root, totally decoupled from any accidental complexity
 
 ### Consolidating `Dockerfile`
-
-TODO: might be worth explaining, or at least linking to docker before introducing it
 
 You've probably noticed the two `Dockerfiles` are almost identical beyond the path to the binary we wish to build.
 
@@ -1214,24 +1217,6 @@ func CurseSpecification(t *testing.T, meany MeanGreeter) {
 
 Pick one of our acceptance tests and try to use the specification
 
-## Write the test first
-
-In our specification file, add the following
-
-```go
-type MeanGreeter interface {
-	Curse(name string) (string, error)
-}
-
-func CurseSpecification(t *testing.T, meany MeanGreeter) {
-	got, err := meany.Curse("Chris")
-	assert.NoError(t, err)
-	assert.Equal(t, got, "Go to hell, Chris!")
-}
-```
-
-Pick one of our acceptance tests and try to use the specification
-
 ```go
 func TestGreeterServer(t *testing.T) {
 	if testing.Short() {
@@ -1307,13 +1292,12 @@ Now the client code has been updated, we can now call `Curse` in our `Driver`
 
 ```go
 func (d *Driver) Curse(name string) (string, error) {
-	conn, err := d.getConnection()
+	client, err := d.getClient()
 	if err != nil {
 		return "", err
 	}
 
-	client := NewGreeterClient(conn)
-	greeting, err := client.Curse(context.Background(), &GreetRequest{
+	greeting, err := client.Curse(context.Background(), &CurseRequest{
 		Name: name,
 	})
 	if err != nil {
@@ -1387,7 +1371,7 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 ### What has been covered
 
 - Writing abstract specifications allows you to express the essential complexity of the problem you're solving and remove accidental complexity. This will enable you to re-use the specifications in different contexts.
-- How to use Testcontainers to spin up your system
+- How to use [Testcontainers](https://golang.testcontainers.org) to easily manage the lifecycle of your system for ATs
 - A brief intro into containerising your application with Docker
 - gRPC
 
