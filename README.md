@@ -1,14 +1,8 @@
-# go-specs-greet
-
-Source code for the chapter (currently WIP) "Scaling Acceptance Tests (and light intro to gRPC)"
-
-**Idea**: Dog-food this chapter on twitch before releasing.
-
 # Learn Go with Tests - Scaling Acceptance Tests (and light intro to gRPC)
 
 This is a follow-up to [Intro to acceptance tests](https://quii.gitbook.io/learn-go-with-tests/testing-fundamentals/intro-to-acceptance-tests)
 
-When written well, acceptance tests are essential to a systems test suite. They can be used at different abstraction layers to give you confidence that your system works how you need it to. Your ability to have good acceptance tests directly impacts your ability to confidently evolve your system over time with a reasonable cost of change.
+When written well, acceptance tests (ATs) are essential to a systems test suite. They can be used at different abstraction layers to give you confidence that your system works how you need it to. Your ability to have good acceptance tests directly impacts your ability to confidently evolve your system over time with a reasonable cost of change.
 
 What you'll appreciate after reading this, though, is that not only are acceptance tests useful for verification, but they can also be used in the development process and help us change our system more deliberately and methodically.
 
@@ -91,16 +85,59 @@ Decoupling how the specification is executed allows us to reuse it in different 
 - Plug in _different_ drivers to test other parts of your system. For instance, you may have a user interface which you could exercise with a web browser and an API behind it; why not use the specification to check both?
   - Taking this idea further, ideally, we want the **essential complexity to be modelled in our code**, so we should also be able to use our specifications for unit tests.
 
-### As a vehicle for software development (TODO)
+### Acceptance tests changing for the right reasons
 
-- Double up as documentation
-- Think about the _actual_ problem, not silly things like gRPC or HTTP
-  - Verify useful things, not implementation details
-  - Make tests less brittle, if implementation details change, it shouldn't have a big effect on the actual requirements.
-    - What the system does will remain fairly constant
-    - How it works, needs to be as flexible as possible
+With this approach, the only reason for your specifications to change is if the behaviour of the system changes, which is reasonable.
 
-## Let's go
+- If your HTTP API has to change, you have one, obvious place to update it, the driver.
+- If your markup changes, again, update the driver
+
+As your system grows, you'll find yourself reusing the driver for multiple tests, which again means if implementation detail changes, you only have to update one place.
+
+When done right, this approach gives us flexibility in our implementation detail, and stability in our specifications.
+
+### Acceptance tests as a method for software development
+
+In our talk, Riya and I discussed acceptance tests and their relation to BDD. We talked about how starting your work by trying to _understand the problem you're trying to solve_ and expressing it as a specification helps focus your intent and is a great way to start your work.
+
+I was first introduced to this way of working in GOOS. A while ago, I summarised the ideas on my blog. Here is an extract from my post [Why TDD](https://quii.dev/The_Why_of_TDD)
+
+---
+
+TDD is focused on letting you design for the behaviour you precisely need, iteratively. When starting a new area, you need to identify a key, important behaviour and aggressively cut scope.
+
+From there, you want to take a “top-down” approach, starting with an acceptance test (AT) that exercises the behaviour from the outside. This will act as a north-star for your efforts. All you should be focused on is making that test pass. This test will likely be failing for a while whilst you develop enough code to make it pass.
+
+![](https://i.imgur.com/pxTaYu4.png)
+
+Once your AT is set up, you can break into the TDD process to drive out enough units to make the AT pass. The trick is to not worry too much about design at this point; get enough code to make the AT pass because you’re still learning and exploring the problem.
+
+Taking this first step is often bigger than you think, setting up web-servers, routing, configuration e.t.c, which is why keeping the scope of the work small is important. We want to make that first positive step on our blank canvas, have it backed by a passing AT so that we can then continue to iterate quickly and safely.
+
+![](https://i.imgur.com/t5y5opw.png)
+
+As you develop, listen to your tests, and they should give you signals to help you push your design in a better direction but, again, anchored to the behaviour rather than our imagination.
+
+Typically, your first “unit” that does the hard work to make the AT pass will grow too big to be comfortable, even for this small amount of behaviour. This is when you can start thinking about how to break the problem down and introduce new collaborators.
+
+![](https://i.imgur.com/UYqd7Cq.png)
+
+This is where test doubles (e.g. fakes, mocks) are handy because most of the complexity that lives internally within software doesn’t usually reside in implementation detail but “between” the units and how they interact.
+
+#### The perils of bottom-up
+
+It can be described as a "top-down" approach rather than a "bottom-up". Bottom-up has its uses, but it carries an element of risk. By building "services" and code without it being integrated into your application quickly and without verifying a high-level test, you risk wasting lots of effort on unvalidated ideas.
+
+This is a crucial property of the acceptance-test-driven approach, using tests to get real validation of our code.
+
+Too many times, I've encountered engineers who have made a chunk of code, in isolation, bottom-up, they think is going to solve a job, but it:
+
+- Doesn't work how we want to
+- Does stuff we don't need
+- Doesn't integrate easily
+- Requires a ton of re-writing anyway
+
+## Enough talk, time to code
 
 Create a new project
 
@@ -1333,9 +1370,9 @@ Again, an exercise for you, the reader. We have our domain-level specification a
 
 Remember to work in small steps, commit and run your tests frequently. If you get really stuck [you can find my implementation on GitHub](https://github.com/quii/go-specs-greet).
 
-## Enhance both systems by updating the domain logic as a unit test
+## Enhance both systems by updating the domain logic with a unit test
 
-As mentioned, not every change to a system needs to be driven via an acceptance test. Permutations of business rules and edge cases should be simple to drive via a unit test if you have separated concerns well.
+As mentioned, not every change to a system should be driven via an acceptance test. Permutations of business rules and edge cases should be simple to drive via a unit test if you have separated concerns well.
 
 Add a unit test to our `Greet` function to default the `name` to `World` if it is empty. You should see how simple this is, and then the business rules are reflected in both applications for "free".
 
@@ -1344,6 +1381,8 @@ Add a unit test to our `Greet` function to default the `name` to `World` if it i
 Hopefully, with this approach, you can see our application's predictable, structured workflow for driving change.
 
 On your day job, you can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in the specification, and use it as a north-star towards your efforts. Separating essential and accidental complexity concerns will make your work less ad-hoc and more structured and deliberate.
+
+Building systems with a reasonable cost of change requires you to have ATs engineered to help you, not become a maintenance burden. On top of this, though, they can be used as a means of guiding, or as a GOOS says, "growing" your software methodically.
 
 ### What has been covered
 
@@ -1355,5 +1394,5 @@ On your day job, you can imagine talking to a stakeholder who wants to extend th
 ### Further material
 
 - In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
-- [Growing Object-Oriented Software, Guided by Tests](http://www.growing-object-oriented-software.com) is a classic. It demonstrates how to apply this "London style", "top down" approach to writing software in a practical way. Anyone who has enjoyed this book should get a lot of value out of reading this
+- For emphasis, [Growing Object-Oriented Software, Guided by Tests,](http://www.growing-object-oriented-software.com) is a classic. It demonstrates applying this "London style", "top-down" approach to writing software. Anyone who has enjoyed Learn Go with Tests should get much value from reading GOOS.
 
