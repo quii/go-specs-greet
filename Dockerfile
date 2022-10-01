@@ -12,6 +12,6 @@ COPY . .
 
 RUN go build -o svr cmd/${bin_to_build}/main.go
 
-FROM alpine:3.11.3
+FROM alpine:3.16.2
 COPY --from=builder /app/svr .
 CMD [ "./svr" ]

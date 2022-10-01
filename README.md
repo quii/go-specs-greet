@@ -191,67 +191,34 @@ Our requirement is to provide a "greeter service" over HTTP. So we'll need to cr
 
 The initial process for creating a black-box test that compiles and runs your program, executes the test and then cleans everything up can be quite labour intensive. That's why it's preferable to do it at the start of your project with minimal functionality. I typically start all my projects with a "hello world" server implementation, with all of my tests set up and ready for me to build the actual functionality quickly.
 
-Most development teams are shipping using docker, so our acceptance tests will test a docker image we'll build for our program.
+This mental model of "specifications", "drivers" and "acceptance tests" can take a little time to get used to, so follow carefully. It can be helpful to "work backwards" by trying to just call our specification.
 
-To help us use Docker in our tests, we will use [Testcontainers](https://golang.testcontainers.org). Testcontainers gives us a programmatic way to build Docker images and manage container lifecycles.
-
-`go get github.com/testcontainers/testcontainers-go`
-
-Create some structure to house our program we intend to ship
+Create some structure to house our program we intend to ship.
 
 `mkdir -p cmd/httpserver`
 
 Inside the new folder, create a new file and add the following
 
-`greeter_httpserver_test.go`
+`greeter_httpserver_test.go` and inside that start with the following
 
 ```go
-package main_test
-
-import (
-	"context"
-	"fmt"
-	"net/http"
-	"testing"
-	"time"
-
-	"github.com/alecthomas/assert/v2"
-	go_specs_greet "github.com/quii/go-specs-greet"
-	"github.com/quii/go-specs-greet/specifications"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
-)
-
 func TestGreeterServer(t *testing.T) {
-	ctx := context.Background()
+	specifications.GreetSpecification(t, nil)
+}
+```
 
-	req := testcontainers.ContainerRequest{
-		FromDockerfile: testcontainers.FromDockerfile{
-			Context:    "../../.",
-			Dockerfile: "./cmd/httpserver/Dockerfile",
-      PrintBuildLog: true, // set to false if you want less spam, but this is helpful if you're having troubles
-		},
-    ExposedPorts: []string{"8080:8080"},
-		WaitingFor:   wait.ForHTTP("/").WithPort("8080"),
-	}
-	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: req,
-		Started:          true,
-	})
-	assert.NoError(t, err)
-	t.Cleanup(func() {
-		assert.NoError(t, container.Terminate(ctx))
-	})
+We wish to run our specification in a Go test. We already have access to a `*testing.T` so that's the first argument, but what about the second?
 
-	driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
+`specifications.Greeter` is an interface, which we will implement with a `Driver`.
+
+```go
+func TestGreeterServer(t *testing.T) {
+  driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
 	specifications.GreetSpecification(t, driver)
 }
 ```
 
-Notes:
-
-- Most of the code is dedicated to building the Docker image of our web server and then launching a container from it.
-- We will allow our driver to be configurable with the `BaseURL` field. This'll allow us to re-use the driver in different environments, such as staging or production.
+It would be favourable for our `Driver` to be configurable, so that we can run it against different environments, including locally, so we have added a `BaseURL` field to it.
 
 ## Try to run the test
 
@@ -266,8 +233,6 @@ We're still practising TDD here! It's a big first step we have to make; we need 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
 Hold your nose; remember, we can refactor when the test has passed. Here's the code for the driver in `driver.go`.
-
-TODO: just implement interface on driver first, and then do Dockerfiles
 
 ```go
 package go_specs_greet
@@ -301,6 +266,69 @@ Notes:
 - **You shouldn't use the default HTTP client**. Later we'll pass in an HTTP client so that it can be configured with timeouts e.t.c., but for now, we're just trying to get ourselves to a passing test.
 
 Try and rerun the tests; they should now compile but not pass.
+
+```
+Get "http://localhost:8080/greet": dial tcp [::1]:8080: connect: connection refused
+```
+
+We have a `Driver`, but we have not started our application yet, so it cannot do a HTTP request. We need our acceptance test to coordinate building, running and finally killing our system for the test to run.
+
+### Running our application
+
+Most development teams are shipping using Docker, so our acceptance tests will test a Docker image we'll build for our program.
+
+To help us use Docker in our tests, we will use [Testcontainers](https://golang.testcontainers.org). Testcontainers gives us a programmatic way to build Docker images and manage container lifecycles.
+
+`go get github.com/testcontainers/testcontainers-go`
+
+```go
+package main_test
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"testing"
+	"time"
+
+	"github.com/alecthomas/assert/v2"
+	go_specs_greet "github.com/quii/go-specs-greet"
+	"github.com/quii/go-specs-greet/specifications"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
+)
+
+func TestGreeterServer(t *testing.T) {
+	ctx := context.Background()
+
+	req := testcontainers.ContainerRequest{
+		FromDockerfile: testcontainers.FromDockerfile{
+			Context:    "../../.",
+			Dockerfile: "./cmd/httpserver/Dockerfile",
+      // set to false if you want less spam, but this is helpful if you're having troubles
+      PrintBuildLog: true, 
+		},
+    ExposedPorts: []string{"8080:8080"},
+		WaitingFor:   wait.ForHTTP("/").WithPort("8080"),
+	}
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	assert.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, container.Terminate(ctx))
+	})
+
+	driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
+	specifications.GreetSpecification(t, driver)
+}
+```
+
+Notes:
+
+- Most of the code is dedicated to building the Docker image of our web server and then launching a container from it.
+- We will allow our driver to be configurable with the `BaseURL` field. This'll allow us to re-use the driver in different environments, such as staging or production.
 
 ```
 === RUN   TestGreeterHandler
@@ -1093,7 +1121,6 @@ COPY . .
 
 RUN go build -o svr cmd/${bin_to_build}/main.go
 
-EXPOSE 50051
 CMD [ "./svr" ]
 ```
 
@@ -1372,7 +1399,7 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 ### What has been covered
 
 - Writing abstract specifications allows you to express the essential complexity of the problem you're solving and remove accidental complexity. This will enable you to re-use the specifications in different contexts.
-- How to use [Testcontainers](https://golang.testcontainers.org) to easily manage the lifecycle of your system for ATs
+- How to use [Testcontainers](https://golang.testcontainers.org) to easily manage the lifecycle of your system for ATs. This allows you to fully test the image you intend to ship on your own computer, giving you fast feedback and a lot of confidence.
 - A brief intro into containerising your application with Docker
 - gRPC
 
