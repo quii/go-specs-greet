@@ -229,6 +229,7 @@ func TestGreeterServer(t *testing.T) {
 		FromDockerfile: testcontainers.FromDockerfile{
 			Context:    "../../.",
 			Dockerfile: "./cmd/httpserver/Dockerfile",
+      PrintBuildLog: true, // set to false if you want less spam, but this is helpful if you're having troubles
 		},
     ExposedPorts: []string{"8080:8080"},
 		WaitingFor:   wait.ForHTTP("/").WithPort("8080"),
@@ -1379,3 +1380,4 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 
 - In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - For emphasis, [Growing Object-Oriented Software, Guided by Tests,](http://www.growing-object-oriented-software.com) is a classic. It demonstrates applying this "London style", "top-down" approach to writing software. Anyone who has enjoyed Learn Go with Tests should get much value from reading GOOS.
+
