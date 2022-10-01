@@ -26,6 +26,7 @@ func StartDockerServer(
 			BuildArgs: map[string]*string{
 				"bin_to_build": &binToBuild,
 			},
+			PrintBuildLog: true,
 		},
 		ExposedPorts: []string{fmt.Sprintf("%s:%s", port, port)},
 		WaitingFor:   wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5 * time.Second),
