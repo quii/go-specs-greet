@@ -199,11 +199,11 @@ To help us use Docker in our tests, we will use [Testcontainers](https://golang.
 
 Create some structure to house our program we intend to ship
 
-`mkdir -p cmd/http_server`
+`mkdir -p cmd/httpserver`
 
 Inside the new folder, create a new file and add the following
 
-`greeter_http_server_test.go`
+`greeter_httpserver_test.go`
 
 ```go
 package main_test
@@ -228,7 +228,7 @@ func TestGreeterServer(t *testing.T) {
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
 			Context:    "../../.",
-			Dockerfile: "./cmd/http_server/Dockerfile",
+			Dockerfile: "./cmd/httpserver/Dockerfile",
 		},
     ExposedPorts: []string{"8080:8080"},
 		WaitingFor:   wait.ForHTTP("/").WithPort("8080"),
@@ -307,12 +307,12 @@ Try and rerun the tests; they should now compile but not pass.
 2022/09/10 18:49:45 Waiting for container id 03e8588a1be4 image: docker.io/testcontainers/ryuk:0.3.3
 2022/09/10 18:49:45 Container is ready id: 03e8588a1be4 image: docker.io/testcontainers/ryuk:0.3.3
     greeter_server_test.go:32: Did not expect an error but got:
-        Error response from daemon: Cannot locate specified Dockerfile: ./cmd/http_server/Dockerfile: failed to create container
+        Error response from daemon: Cannot locate specified Dockerfile: ./cmd/httpserver/Dockerfile: failed to create container
 --- FAIL: TestGreeterHandler (0.59s)
 
 ```
 
-We need to create a Dockerfile for our program. Inside our `http_server` folder, create a `Dockerfile` and add the following.
+We need to create a Dockerfile for our program. Inside our `httpserver` folder, create a `Dockerfile` and add the following.
 
 ```dockerfile
 FROM golang:1.18-alpine
@@ -325,7 +325,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o svr cmd/http_server/*.go
+RUN go build -o svr cmd/httpserver/*.go
 
 EXPOSE 8080
 CMD [ "./svr" ]
@@ -337,7 +337,7 @@ Try and rerun the test; it should complain about not being able to build the ima
 
 For the test to fully execute, we'll need to create a program that listens on `8080`, but **that's all**. Stick to the TDD discipline, don't write the production code that would make the test pass until we've verified the test fails as we'd expect.
 
-Create a `main.go` inside our `http_server` folder with the following
+Create a `main.go` inside our `httpserver` folder with the following
 
 ```go
 func main() {
@@ -593,7 +593,7 @@ This felt simple right? OK, maybe it was simply due to the nature of the problem
 
 - Analyse your problem and identify a slight improvement to your system that pushes you in the right direction
 - Change the spec
-- Follow the compilation errors until the test runs
+- Follow the compilation errors until the AT runs
 - Update your implementation to make the system behave according to the specification
 - Refactor
 
@@ -703,7 +703,7 @@ func TestGreeterServer(t *testing.T) {
 		port           = "8080"
 		dockerFilePath = "./cmd/httpserver/Dockerfile"
 		baseURL        = fmt.Sprintf("http://localhost:%s", port)
-		driver         = go_specs_greet.Driver{BaseURL: baseURL, Client: &http.Client{
+		driver         = httpserver.Driver{BaseURL: baseURL, Client: &http.Client{
 			Timeout: 1 * time.Second,
 		}}
 	)
@@ -1379,4 +1379,3 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 
 - In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - For emphasis, [Growing Object-Oriented Software, Guided by Tests,](http://www.growing-object-oriented-software.com) is a classic. It demonstrates applying this "London style", "top-down" approach to writing software. Anyone who has enjoyed Learn Go with Tests should get much value from reading GOOS.
-
