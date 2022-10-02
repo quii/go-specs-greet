@@ -194,7 +194,7 @@ We require to provide a "greeter service" over HTTP. So we'll need to create:
 
 The initial process for creating a black-box test that compiles and runs your program, executes the test and then cleans everything up can be quite labour intensive. That's why it's preferable to do it at the start of your project with minimal functionality. I typically start all my projects with a "hello world" server implementation, with all of my tests set up and ready for me to build the actual functionality quickly.
 
-This mental model of "specifications", "drivers" and "acceptance tests" can take a little time to get used to, so follow carefully. It can be helpful to "work backwards" by trying to call the specification first.
+The mental model of "specifications", "drivers", and "acceptance tests" can take a little time to get used to, so follow carefully. It can be helpful to "work backwards" by trying to call the specification first.
 
 Create some structure to house the program we intend to ship.
 
@@ -276,7 +276,7 @@ We have a `Driver`, but we have not started our application yet, so it cannot do
 
 ### Running our application
 
-Most development teams are shipping using Docker, so our acceptance tests will test a Docker image we'll build for our program.
+It's common for teams to build Docker images of their systems to deploy, so for our test we'll do the same
 
 To help us use Docker in our tests, we will use [Testcontainers](https://golang.testcontainers.org). Testcontainers gives us a programmatic way to build Docker images and manage container life-cycles.
 
@@ -326,10 +326,7 @@ func TestGreeterServer(t *testing.T) {
 }
 ```
 
-Notes:
-
-- Most of the code is dedicated to building the Docker image of our web server and then launching a container from it.
-- We will allow our driver to be configurable with the `BaseURL` field. This'll allow us to reuse the driver in different environments, such as staging or production.
+Try and run the test.
 
 ```
 === RUN   TestGreeterHandler
@@ -360,9 +357,9 @@ EXPOSE 8080
 CMD [ "./svr" ]
 ```
 
-Don't worry too much about the details here; it can be refined and optimised, but for this example, it'll suffice. The advantage of our approach here is we can later improve our Dockerfile and have a test to prove it works as we intend it to. This is the real strength of having black-box tests!
+Don't worry too much about the details here; it can be refined and optimised, but for this example, it'll suffice. The advantage of our approach here is we can later improve our Dockerfile and have a test to prove it works as we intend it to. This is a real strength of having black-box tests!
 
-Try and rerun the test; it should complain about not being able to build the image. Of course, that's because we haven't added a program yet!
+Try and rerun the test; it should complain about not being able to build the image. Of course, that's because we haven't written a program to build yet!
 
 For the test to fully execute, we'll need to create a program that listens on `8080`, but **that's all**. Stick to the TDD discipline, don't write the production code that would make the test pass until we've verified the test fails as we'd expect.
 
@@ -494,7 +491,6 @@ func GreetSpecification(t testing.TB, greeter Greeter) {
 	assert.NoError(t, err)
 	assert.Equal(t, got, "Hello, Mike")
 }
-
 ```
 
 To allow us to greet specific people, we need to change the interface to our system to accept a `name` parameter.
@@ -620,6 +616,8 @@ func TestGreet(t *testing.T) {
 	)
 }
 ```
+
+The adapter pattern is handy when you have a type that exhibits the behaviour that an interface wants, but isn't in the right shape.
 
 ## Reflect
 
