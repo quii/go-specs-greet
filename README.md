@@ -590,11 +590,11 @@ This would be nice, but it doesn't work
 
 Our specification wants something that has a method `Greet()` not a function.
 
-This is frustrating; we have a thing that we "know" is a `Greeter`, but it's not quite in the right **shape** for the compiler to let us use it. This is what the **adapter** pattern caters for.
+The compilation error is frustrating; we have a thing that we "know" is a `Greeter`, but it's not quite in the right **shape** for the compiler to let us use it. This is what the **adapter** pattern caters for.
 
 > In [software engineering](https://en.wikipedia.org/wiki/Software_engineering), the **adapter pattern** is a [software design pattern](https://en.wikipedia.org/wiki/Software_design_pattern) (also known as [wrapper](https://en.wikipedia.org/wiki/Wrapper_function), an alternative naming shared with the [decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern)) that allows the [interface](https://en.wikipedia.org/wiki/Interface_(computer_science)) of an existing [class](https://en.wikipedia.org/wiki/Class_(computer_science)) to be used as another interface.[[1\]](https://en.wikipedia.org/wiki/Adapter_pattern#cite_note-HeadFirst-1) It is often used to make existing classes work with others without modifying their [source code](https://en.wikipedia.org/wiki/Source_code).
 
-This is a lot of fancy words for something relatively simple, which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations but a language to describe specific solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication.
+A lot of fancy words for something relatively simple, which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations but a language to describe specific solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication.
 
 Add this code in `greet.go`
 
@@ -621,10 +621,10 @@ The adapter pattern is handy when you have a type that exhibits the behaviour th
 
 ## Reflect
 
-This felt simple right? OK, maybe it was simply due to the nature of the problem, but this method of work gives you discipline and a simple, repeatable way of changing your system from top to bottom:
+The behaviour change felt simple, right? OK, maybe it was simply due to the nature of the problem, but this method of work gives you discipline and a simple, repeatable way of changing your system from top to bottom:
 
 - Analyse your problem and identify a slight improvement to your system that pushes you in the right direction
-- Change the spec
+- Capture the new essential complexity in a specification
 - Follow the compilation errors until the AT runs
 - Update your implementation to make the system behave according to the specification
 - Refactor
@@ -642,9 +642,11 @@ ok  	github.com/quii/go-specs-greet/cmd/httpserver	2.221s
 
 Now, imagine your CTO has now decided that gRPC is _the future_. She wants you to expose this same functionality over a gRPC server whilst maintaining the existing HTTP server.
 
-This is an example of **accidental complexity**. Remember, accidental complexity is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, e.t.c.
+This is an example of **accidental complexity**. Remember, accidental complexity is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, e.t.c. **The essential complexity has not changed**, so we shouldn't have to change our specifications.
 
-Many repository structures and design patterns are mainly dealing with this concern. For instance, "ports and adapters" ask that you separate your domain code from anything to do with accidental complexity; that code lives in an "adapters" folder.
+Many repository structures and design patterns are mainly dealing with separating types of complexity. For instance, "ports and adapters" ask that you separate your domain code from anything to do with accidental complexity; that code lives in an "adapters" folder.
+
+### Making the change easy
 
 Sometimes, it makes sense to do some refactoring _before_ making a change.
 
@@ -785,7 +787,7 @@ func TestGreeterServer(t *testing.T) {
 The only differences are:
 
 - We use a different docker file, because we're building a different program
-- We use a different driver to plug in to the specification
+- This means we'll need a new `Driver`, that'll use `gRPC` to interact with our new program
 
 ## Try to run the test
 
@@ -1171,7 +1173,7 @@ func TestGreeterServer(t *testing.T) {
 }
 ```
 
-### Separating out different kinds of tests
+### Separating different kinds of tests
 
 Acceptance tests are great in that they test the whole system works from a pure user-facing, behavioural POV, but they do have their downsides compared to unit tests:
 
@@ -1364,8 +1366,8 @@ The tests should now pass.
 
 Try doing this yourself.
 
-- Extract the "domain logic", away from the grpc server, like we did for `Greet`. Use the specification as a unit test against your domain logic
-- Have separate types in the protobuf to ensure the message types for `Greet` and `Curse` are decoupled.
+- Extract the "domain logic", away from the grpc server, as we did for `Greet`. Use the specification as a unit test against your domain logic
+- Have different types in the protobuf to ensure the message types for `Greet` and `Curse` are decoupled.
 
 ## Implementing `Curse` for the HTTP server
 
@@ -1394,7 +1396,7 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 ### What has been covered
 
 - Writing abstract specifications allows you to express the essential complexity of the problem you're solving and remove accidental complexity. This will enable you to reuse the specifications in different contexts.
-- How to use [Testcontainers](https://golang.testcontainers.org) to manage the life-cycle of your system for ATs. This allows you to fully test the image you intend to ship on your own computer, giving you fast feedback and a lot of confidence.
+- How to use [Testcontainers](https://golang.testcontainers.org) to manage the life-cycle of your system for ATs. This allows you to thoroughly test the image you intend to ship on your computer, giving you fast feedback and confidence.
 - A brief intro into containerising your application with Docker
 - gRPC
 
@@ -1402,5 +1404,6 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 
 - In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - For emphasis, [Growing Object-Oriented Software, Guided by Tests,](http://www.growing-object-oriented-software.com) is a classic. It demonstrates applying this "London style", "top-down" approach to writing software. Anyone who has enjoyed Learn Go with Tests should get much value from reading GOOS.
+- [In the example code repository](https://github.com/quii/go-specs-greet), there's more code and ideas I haven't written about here, such as multi-stage docker build, you may wish to check this out. 
 
 
