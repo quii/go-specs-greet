@@ -1108,7 +1108,7 @@ You've probably noticed the two `Dockerfiles` are almost identical beyond the pa
 
 `Dockerfiles` can accept arguments to let us reuse them in different contexts, which sounds perfect. We can delete our 2 Dockerfiles and instead have one at the root of the project with the following
 
-```go
+```dockerfile
 FROM golang:1.18-alpine
 
 WORKDIR /app
