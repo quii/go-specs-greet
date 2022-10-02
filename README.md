@@ -817,7 +817,7 @@ If you run again, it should now _compile_ but not pass because we haven't create
 
 Create a new `Dockerfile` inside `cmd/grpcserver`.
 
-```docker
+```dockerfile
 FROM golang:1.18-alpine
 
 WORKDIR /app
