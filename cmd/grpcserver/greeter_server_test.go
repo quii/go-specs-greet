@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -15,14 +14,12 @@ func TestGreeterServer(t *testing.T) {
 		t.Skip()
 	}
 	var (
-		ctx    = context.Background()
 		port   = "50051"
-		addr   = fmt.Sprintf("localhost:%s", port)
-		driver = grpcserver.Driver{Addr: addr}
+		driver = grpcserver.Driver{Addr: fmt.Sprintf("localhost:%s", port)}
 	)
 
 	t.Cleanup(driver.Close)
-	adapters.StartDockerServer(ctx, t, port, "grpcserver")
+	adapters.StartDockerServer(t, port, "grpcserver")
 	specifications.GreetSpecification(t, &driver)
 	specifications.CurseSpecification(t, &driver)
 }

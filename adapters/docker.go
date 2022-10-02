@@ -13,11 +13,11 @@ import (
 )
 
 func StartDockerServer(
-	ctx context.Context,
 	t testing.TB,
 	port string,
 	binToBuild string,
 ) {
+	ctx := context.Background()
 	t.Helper()
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{

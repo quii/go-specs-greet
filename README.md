@@ -698,16 +698,17 @@ import (
 )
 
 func StartDockerServer(
-  ctx context.Context,
 	t testing.TB,
-	dockerFilePath string,
 	port string,
+	dockerFilePath string,
 ) {
+	ctx := context.Background()
 	t.Helper()
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
 			Context:    "../../.",
 			Dockerfile: dockerFilePath,
+			PrintBuildLog: true,
 		},
 		ExposedPorts: []string{fmt.Sprintf("%s:%s", port, port)},
 		WaitingFor:   wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5 * time.Second),
@@ -721,6 +722,7 @@ func StartDockerServer(
 		assert.NoError(t, container.Terminate(ctx))
 	})
 }
+
 ```
 
 This gives us an opportunity to clean up our acceptance test a little
@@ -728,7 +730,6 @@ This gives us an opportunity to clean up our acceptance test a little
 ```go
 func TestGreeterServer(t *testing.T) {
 	var (
-		ctx            = context.Background()
 		port           = "8080"
 		dockerFilePath = "./cmd/httpserver/Dockerfile"
 		baseURL        = fmt.Sprintf("http://localhost:%s", port)
@@ -737,7 +738,7 @@ func TestGreeterServer(t *testing.T) {
 		}}
 	)
 
-	adapters.StartDockerServer(ctx, t, dockerFilePath, port)
+	adapters.StartDockerServer(t, dockerFilePath, port)
 	specifications.GreetSpecification(t, driver)
 }
 ```
@@ -769,14 +770,13 @@ import (
 
 func TestGreeterServer(t *testing.T) {
 	var (
-		ctx            = context.Background()
 		port           = "50051"
 		dockerFilePath = "./cmd/grpcserver/Dockerfile"
 		addr           = fmt.Sprintf("localhost:%s", port)
 		driver         = grpcserver.Driver{Addr: addr}
 	)
 
-	adapters.StartDockerServer(ctx, t, dockerFilePath, port)
+	adapters.StartDockerServer(t, dockerFilePath, port)
 	specifications.GreetSpecification(t, &driver)
 }
 ```
@@ -1128,11 +1128,11 @@ We'll have to update our `StartDockerServer` function to pass in the argument wh
 
 ```go
 func StartDockerServer(
-	ctx context.Context,
 	t testing.TB,
 	port string,
 	binToBuild string,
 ) {
+	ctx := context.Background()
 	t.Helper()
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: testcontainers.FromDockerfile{
@@ -1141,6 +1141,7 @@ func StartDockerServer(
 			BuildArgs: map[string]*string{
 				"bin_to_build": &binToBuild,
 			},
+			PrintBuildLog: true,
 		},
 		ExposedPorts: []string{fmt.Sprintf("%s:%s", port, port)},
 		WaitingFor:   wait.ForListeningPort(nat.Port(port)).WithStartupTimeout(5 * time.Second),
@@ -1161,13 +1162,11 @@ And finally, update our tests to pass in the image to build (do this for the oth
 ```go
 func TestGreeterServer(t *testing.T) {
 	var (
-		ctx    = context.Background()
 		port   = "50051"
-		addr   = fmt.Sprintf("localhost:%s", port)
-		driver = grpcserver.Driver{Addr: addr}
+		driver = grpcserver.Driver{Addr: fmt.Sprintf("localhost:%s", port)}
 	)
 
-	adapters.StartDockerServer(ctx, t, port, "grpcserver")
+	adapters.StartDockerServer(t, port, "grpcserver")
 	specifications.GreetSpecification(t, &driver)
 }
 ```
@@ -1251,14 +1250,12 @@ func TestGreeterServer(t *testing.T) {
 		t.Skip()
 	}
 	var (
-		ctx    = context.Background()
 		port   = "50051"
-		addr   = fmt.Sprintf("localhost:%s", port)
-		driver = grpcserver.Driver{Addr: addr}
+		driver = grpcserver.Driver{Addr: fmt.Sprintf("localhost:%s", port)}
 	)
 
 	t.Cleanup(driver.Close)
-	adapters.StartDockerServer(ctx, t, port, "grpcserver")
+	adapters.StartDockerServer(t, port, "grpcserver")
 	specifications.GreetSpecification(t, &driver)
 	specifications.CurseSpecification(t, &driver)
 }

@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -17,7 +16,6 @@ func TestGreeterServer(t *testing.T) {
 		t.Skip()
 	}
 	var (
-		ctx    = context.Background()
 		port   = "8080"
 		driver = go_specs_greet.Driver{
 			BaseURL: fmt.Sprintf("http://localhost:%s", port),
@@ -27,7 +25,7 @@ func TestGreeterServer(t *testing.T) {
 		}
 	)
 
-	adapters.StartDockerServer(ctx, t, port, "httpserver")
+	adapters.StartDockerServer(t, port, "httpserver")
 	specifications.GreetSpecification(t, driver)
 	specifications.CurseSpecification(t, driver)
 }
