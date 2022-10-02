@@ -214,7 +214,7 @@ We wish to run our specification in a Go test. We already have access to a `*tes
 
 ```go
 func TestGreeterServer(t *testing.T) {
-  driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
+  	driver := go_specs_greet.Driver{BaseURL: "http://localhost:8080"}
 	specifications.GreetSpecification(t, driver)
 }
 ```
