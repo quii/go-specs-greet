@@ -146,7 +146,7 @@ Unlike other chapters, you'll need Docker installed.
 
 Create a new project
 
-`go mod init github.com/quii/go-specs-greet` (you can put whatever you like here)
+`go mod init github.com/quii/go-specs-greet` (you can put whatever you like here but if you change the path you will need to change all internal imports to match)
 
 Make a folder `specifications` to hold our specification, and add a file `greet.go`
 
@@ -200,9 +200,17 @@ Create some structure to house the program we intend to ship.
 
 `mkdir -p cmd/httpserver`
 
-Inside the new folder, create a new file `greeter_httpserver_test.go`, and add the following.
+Inside the new folder, create a new file `greeter_server_test.go`, and add the following.
 
 ```go
+package main_test
+
+import (
+	"testing"
+
+	"github.com/quii/specifications"
+)
+
 func TestGreeterServer(t *testing.T) {
 	specifications.GreetSpecification(t, nil)
 }
@@ -210,7 +218,7 @@ func TestGreeterServer(t *testing.T) {
 
 We wish to run our specification in a Go test. We already have access to a `*testing.T`, so that's the first argument, but what about the second?
 
-`specifications.Greeter` is an interface, which we will implement with a `Driver`.
+`specifications.Greeter` is an interface, which we will implement with a `Driver` by changing the new TestGreeterServer code to the following:
 
 ```go
 func TestGreeterServer(t *testing.T) {
@@ -233,7 +241,7 @@ We're still practising TDD here! It's a big first step we have to make; we need 
 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
-Hold your nose; remember, we can refactor when the test has passed. Here's the code for the driver in `driver.go`.
+Hold your nose; remember, we can refactor when the test has passed. Here's the code for the driver in `driver.go` which we will place in the project root:
 
 ```go
 package go_specs_greet
@@ -261,6 +269,18 @@ func (d Driver) Greet() (string, error) {
 }
 ```
 
+Import the driver into `greeter_server_test.go` by adjusting the `import` section as follows:
+
+```go
+import (
+	"testing"
+
+	"gitlab.com/quii/go-specs-greet/specifications"	
+	go_specs_greet "gitlab.com/quii/go-specs-greet"
+)
+```
+
+
 Notes:
 
 - You could argue that I should be writing tests to drive out the various `if err != nil`, but in my experience, so long as you're not doing anything with the `err`, tests that say "you return the error you get" are relatively low value.
@@ -282,15 +302,14 @@ To help us use Docker in our tests, we will use [Testcontainers](https://golang.
 
 `go get github.com/testcontainers/testcontainers-go`
 
+Now you can edit `cmd/httpserver/greeter_server_test.go` to read as follows:
+
 ```go
 package main_test
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"testing"
-	"time"
 
 	"github.com/alecthomas/assert/v2"
 	go_specs_greet "github.com/quii/go-specs-greet"
@@ -366,6 +385,13 @@ For the test to fully execute, we'll need to create a program that listens on `8
 Create a `main.go` inside our `httpserver` folder with the following
 
 ```go
+package main
+
+import (
+	"log"
+	"net/http"
+)
+
 func main() {
 	handler := http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 	})
@@ -401,7 +427,7 @@ func main() {
 
 ## Refactor
 
-Whilst this technically isn't a refactor, we shouldn't rely on the default HTTP client, so let's change our client, so we can supply one, which our test will give.
+Whilst this technically isn't a refactor, we shouldn't rely on the default HTTP client, so let's change our Driver, so we can supply one, which our test will give.
 
 ```go
 type Driver struct {
@@ -423,7 +449,7 @@ func (d Driver) Greet() (string, error) {
 }
 ```
 
-Update the creation of the driver to pass in a client.
+In our test in `cmd/httpserver/greeter_server_test.go`, update the creation of the driver to pass in a client.
 
 ```go
 client := http.Client{
@@ -436,9 +462,16 @@ specifications.GreetSpecification(t, driver)
 
 It's good practice to keep `main.go` as simple as possible; it should only be concerned with piecing together the building blocks you make into an application.
 
-Create a file called `handler.go` and move our code into there.
+Create a file in the project root called `handler.go` and move our code into there.
 
 ```go
+package go_specs_greet
+
+import (
+	"fmt"
+	"net/http"
+)
+
 func Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello, world")
 }
@@ -546,11 +579,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
+The test should now pass.
+
 ## Refactor
 
 In [HTTP Handlers Revisited,](https://github.com/quii/learn-go-with-tests/blob/main/http-handlers-revisited.md) we discussed how important it is for HTTP handlers should only be responsible for handling HTTP concerns; any "domain logic" should live outside of the handler. This allows us to develop domain logic in isolation from HTTP, making it simpler to test and understand.
 
 Let's pull apart these concerns.
+
+Update our handler in `./handler.go` as follows:
 
 ```go
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -559,9 +596,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-In `greet.go`
+Create new file `./greet.go`:
 
 ```go
+package go_specs_greet
+
+import "fmt"
+
 func Greet(name string) string {
 	return fmt.Sprintf("Hello, %s", name)
 }
@@ -573,12 +614,22 @@ Now that we've separated our domain logic of greeting people into a separate fun
 
 Wouldn't it be nice if we could reuse our specification here too? After all, the specification's point is decoupled from implementation details. If the specification captures our **essential complexity** and our "domain" code is supposed to model it, we should be able to use them together.
 
-Let's give it a go in `greet_test.go`
+Let's give it a go by creating  `./greet_test.go` as follows:
 
 ```go
+package go_specs_greet_test
+
+import (
+	"testing"
+
+	"github.com/quii/go-specs-greet/specifications"
+	go_specs_greet "github.com/quii/go-specs-greet"
+)
+
 func TestGreet(t *testing.T) {
 	specifications.GreetSpecification(t, go_specs_greet.Greet)
 }
+
 ```
 
 This would be nice, but it doesn't work
@@ -596,7 +647,7 @@ The compilation error is frustrating; we have a thing that we "know" is a `Greet
 
 A lot of fancy words for something relatively simple, which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations but a language to describe specific solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication.
 
-Add this code in `greet.go`
+Add this code in `./greet.go`
 
 ```go
 type GreetAdapter func(name string) string
@@ -609,6 +660,15 @@ func (g GreetAdapter) Greet(name string) (string, error) {
 We can now use our adapter in our test to plug our `Greet` function into the specification.
 
 ```go
+package main_test
+
+import (
+	"testing"
+
+	"github.com/quii/go-specs-greet/specifications"
+	gospecsgreet "github.com/quii/go-specs-greet"
+)
+
 func TestGreet(t *testing.T) {
 	specifications.GreetSpecification(
 		t,
@@ -654,7 +714,59 @@ Sometimes, it makes sense to do some refactoring _before_ making a change.
 
 ~Kent Beck
 
-For that reason, let's gather our `http` code into a package called `httpserver` within an `adapters` folder
+For that reason, let's move our `http` code - `driver.go` and `handler.go` - into a package called `httpserver` within an `adapters` folder and change their package names to `httpserver`. 
+
+You'll now need to  import the root package into handler.go to refer to the Greet method...
+
+```go
+package httpserver
+
+import (
+	go_specs_greet "github.com/quii/go-specs-greet"
+)
+
+func Handler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	fmt.Fprint(w, go_specs_greet.Greet(name))
+}
+
+```
+
+import your httpserver adapater into main.go:
+
+```go
+package main
+
+import (
+	"net/http"
+
+	 "github.com/quii/go-specs-greet/adapters/httpserver"
+)
+
+func main() {
+	handler := http.HandlerFunc(httpserver.Handler)
+	http.ListenAndServe(":8080", handler)
+}
+
+```
+
+and finally update the import and reference to `Driver` in greeter_server_test.go:
+
+```go
+import (
+	...
+	"github.com/quii/go-specs-greet/adapters/httpserver" 
+	...
+)
+
+	  ...
+	  driver := httpserver.Driver{BaseURL: "http://localhost:8080", Client: &client}
+	  ...
+
+```
+
+
+Our project tree should now look like this:
 
 ```
 quii@Chriss-MacBook-Pro go-specs-greet % tree
@@ -694,7 +806,9 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/alecthomas/assert/v2"
 	"github.com/docker/go-connections/nat"
@@ -742,7 +856,7 @@ func TestGreeterServer(t *testing.T) {
 		}}
 	)
 
-	adapters.StartDockerServer(t, dockerFilePath, port)
+	adapters.StartDockerServer(t, port, dockerFilePath)
 	specifications.GreetSpecification(t, driver)
 }
 ```
@@ -763,7 +877,6 @@ Create a new folder `grpcserver` inside `cmd` to house our new program and the c
 package main_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -779,7 +892,7 @@ func TestGreeterServer(t *testing.T) {
 		driver         = grpcserver.Driver{Addr: fmt.Sprintf("localhost:%s", port)}
 	)
 
-	adapters.StartDockerServer(t, dockerFilePath, port)
+	adapters.StartDockerServer(t, port, dockerFilePath)
 	specifications.GreetSpecification(t, &driver)
 }
 ```
@@ -1223,7 +1336,7 @@ It's difficult to give a concrete rule, but the questions I typically ask myself
 
 ## Iterating on our work
 
-With all this effort, you'd hope extending our system will now be simple. Making a system that is simple to work on, is not neccessairily easy, but it's worth the time, and is substantially easier to do when you start a project.
+With all this effort, you'd hope extending our system will now be simple. Making a system that is simple to work on, is not necessarily easy, but it's worth the time, and is substantially easier to do when you start a project.
 
 Let's extend our API to include a "curse" functionality.
 
@@ -1322,7 +1435,7 @@ func (d *Driver) Curse(name string) (string, error) {
 		return "", err
 	}
 
-	greeting, err := client.Curse(context.Background(), &CurseRequest{
+	greeting, err := client.Curse(context.Background(), &GreetRequest{
 		Name: name,
 	})
 	if err != nil {
