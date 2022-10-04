@@ -53,12 +53,12 @@ If we want acceptance tests that only change when we change behaviour and not an
 
 As software engineers, we have to deal with two kinds of complexity.
 
-- **Accidental complexity** is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, e.t.c.
+- **Accidental complexity** is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, etc.
 
 - **Essential complexity** is sometimes referred to as "domain logic". It's the particular rules and truths within your domain.
   - For example, "if an account owner withdraws more money than is available, they are overdrawn". This statement says nothing about computers; this statement was true before computers were even used in banks!
 
-Essential complexity should be expressable to a non-technical person, and it's valuable to model them in our systems in our "domain" code and our acceptance tests.
+Essential complexity should be expressible to a non-technical person, and it's valuable to model them in our systems in our "domain" code and our acceptance tests.
 
 ### Separation of concerns
 
@@ -115,7 +115,7 @@ Follow a "top-down" approach, starting with an acceptance test (AT) that exercis
 
 Once your AT is set up, you can break into the TDD process to drive out enough units to make the AT pass. The trick is to not worry too much about design at this point; get enough code to make the AT pass because you're still learning and exploring the problem.
 
-Taking this first step is often more extensive than you think, setting up web servers, routing, configuration, e.t.c, which is why keeping the scope of the work small is essential. We want to make that first positive step on our blank canvas and have it backed by a passing AT so we can continue to iterate quickly and safely.
+Taking this first step is often more extensive than you think, setting up web servers, routing, configuration, etc., which is why keeping the scope of the work small is essential. We want to make that first positive step on our blank canvas and have it backed by a passing AT so we can continue to iterate quickly and safely.
 
 ![](https://i.imgur.com/t5y5opw.png)
 
@@ -178,7 +178,7 @@ Given Farley's acceptance test design (Specification->DSL->Driver->System), we n
 
 You could view the interface as our first step of a DSL; as the project grows, you may find the need to abstract differently, but for now, this is fine.
 
-At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting"; **I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams**. I am confident that most acceptance tests out in the wild are expensive to maintain due to this inappropriate coupling; rather than the reverse of being overly abstract.
+At this point, this level of ceremony to decouple our specification from implementation might make some people accuse us of "overly abstracting". **I promise you that acceptance tests that are too coupled to implementation become a real burden on engineering teams**. I am confident that most acceptance tests out in the wild are expensive to maintain due to this inappropriate coupling; rather than the reverse of being overly abstract.
 
 We can use this specification to verify any "system" that can `Greet`.
 
@@ -187,8 +187,8 @@ We can use this specification to verify any "system" that can `Greet`.
 We require to provide a "greeter service" over HTTP. So we'll need to create:
 
 1. A **driver**. In this case, one works with an HTTP system by using an **HTTP client**. This code will know how to work with our API. Drivers translate DSLs into system-specific calls; in our case, the driver will implement the interface specifications define.
-2. A HTTP server with a greet API
-3. A test, which is responsible for managing the life-cycle of spinning up the server and then plugging the driver into the specification to run it as a test
+2. An **HTTP server** with a greet API
+3. A **test**, which is responsible for managing the life-cycle of spinning up the server and then plugging the driver into the specification to run it as a test
 
 ## Write the test first
 
@@ -264,7 +264,7 @@ func (d Driver) Greet() (string, error) {
 Notes:
 
 - You could argue that I should be writing tests to drive out the various `if err != nil`, but in my experience, so long as you're not doing anything with the `err`, tests that say "you return the error you get" are relatively low value.
-- **You shouldn't use the default HTTP client**. Later we'll pass in an HTTP client to configure it with timeouts e.t.c., but for now, we're just trying to get ourselves to a passing test.
+- **You shouldn't use the default HTTP client**. Later we'll pass in an HTTP client to configure it with timeouts etc., but for now, we're just trying to get ourselves to a passing test.
 
 Try and rerun the tests; they should now compile but not pass.
 
@@ -642,7 +642,7 @@ ok  	github.com/quii/go-specs-greet/cmd/httpserver	2.221s
 
 Now, imagine your CTO has now decided that gRPC is _the future_. She wants you to expose this same functionality over a gRPC server whilst maintaining the existing HTTP server.
 
-This is an example of **accidental complexity**. Remember, accidental complexity is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, e.t.c. **The essential complexity has not changed**, so we shouldn't have to change our specifications.
+This is an example of **accidental complexity**. Remember, accidental complexity is the complexity we have to deal with because we're working with computers, stuff like networks, disks, APIs, etc. **The essential complexity has not changed**, so we shouldn't have to change our specifications.
 
 Many repository structures and design patterns are mainly dealing with separating types of complexity. For instance, "ports and adapters" ask that you separate your domain code from anything to do with accidental complexity; that code lives in an "adapters" folder.
 
@@ -1218,7 +1218,7 @@ It's difficult to give a concrete rule, but the questions I typically ask myself
 
 - Is this an edge case? I'd prefer to unit test those
 - Is this something that the non-computer people talk about a lot? I would prefer to have a lot of confidence the key thing "really" works, so I'd add an acceptance test
-- Am i describing a user journey, rather than a specific function? Acceptance test
+- Am I describing a user journey, rather than a specific function? Acceptance test
 - Would unit tests give me enough confidence? Sometimes you're taking an existing journey that already has an acceptance test, but you're adding other functionality to deal with different scenarios due to different inputs. In this case, adding another acceptance test adds a cost but brings little value, so I'd prefer some unit tests.
 
 ## Iterating on our work
