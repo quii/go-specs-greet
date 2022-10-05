@@ -5,20 +5,20 @@ import (
 	"net/http"
 )
 
-type Driver struct {
+type TestDriver struct {
 	BaseURL string
 	Client  *http.Client
 }
 
-func (d Driver) Curse(name string) (string, error) {
+func (d TestDriver) Curse(name string) (string, error) {
 	return d.getAndReadFrom(cursePath, name)
 }
 
-func (d Driver) Greet(name string) (string, error) {
+func (d TestDriver) Greet(name string) (string, error) {
 	return d.getAndReadFrom(greetPath, name)
 }
 
-func (d Driver) getAndReadFrom(path string, name string) (string, error) {
+func (d TestDriver) getAndReadFrom(path string, name string) (string, error) {
 	res, err := d.Client.Get(d.BaseURL + path + "?name=" + name)
 	if err != nil {
 		return "", err

@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type Driver struct {
+type TestDriver struct {
 	Addr string
 
 	connectionOnce sync.Once
@@ -16,7 +16,7 @@ type Driver struct {
 	client         GreeterClient
 }
 
-func (d *Driver) Greet(name string) (string, error) {
+func (d *TestDriver) Greet(name string) (string, error) {
 	client, err := d.getClient()
 	if err != nil {
 		return "", err
@@ -32,7 +32,7 @@ func (d *Driver) Greet(name string) (string, error) {
 	return greeting.Message, nil
 }
 
-func (d *Driver) Curse(name string) (string, error) {
+func (d *TestDriver) Curse(name string) (string, error) {
 	client, err := d.getClient()
 	if err != nil {
 		return "", err
@@ -48,13 +48,13 @@ func (d *Driver) Curse(name string) (string, error) {
 	return greeting.Message, nil
 }
 
-func (d *Driver) Close() {
+func (d *TestDriver) Close() {
 	if d.conn != nil {
 		d.conn.Close()
 	}
 }
 
-func (d *Driver) getClient() (GreeterClient, error) {
+func (d *TestDriver) getClient() (GreeterClient, error) {
 	var err error
 	d.connectionOnce.Do(func() {
 		d.conn, err = grpc.Dial(d.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
