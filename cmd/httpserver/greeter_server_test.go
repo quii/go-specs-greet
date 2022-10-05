@@ -17,7 +17,7 @@ func TestGreeterServer(t *testing.T) {
 	}
 	var (
 		port   = "8080"
-		driver = go_specs_greet.Driver{
+		driver = go_specs_greet.TestDriver{
 			BaseURL: fmt.Sprintf("http://localhost:%s", port),
 			Client: &http.Client{
 				Timeout: 1 * time.Second,
