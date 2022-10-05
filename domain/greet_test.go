@@ -8,10 +8,17 @@ import (
 	"github.com/quii/go-specs-greet/specifications"
 )
 
+type GreetAdapter func(name string) string
+
+func (g GreetAdapter) Greet(name string) (string, error) {
+	return g(name), nil
+}
+
+
 func TestGreet(t *testing.T) {
 	specifications.GreetSpecification(
 		t,
-		domain.GreetAdapter(domain.Greet),
+		GreetAdapter(domain.Greet),
 	)
 
 	t.Run("default name to world if it's an empty string", func(t *testing.T) {
