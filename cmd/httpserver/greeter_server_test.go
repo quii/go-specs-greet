@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/quii/go-specs-greet/adapters"
-	go_specs_greet "github.com/quii/go-specs-greet/adapters/httpserver"
+	adapter "github.com/quii/go-specs-greet/adapters/httpserver"
 	"github.com/quii/go-specs-greet/specifications"
 )
 
@@ -17,7 +17,7 @@ func TestGreeterServer(t *testing.T) {
 	}
 	var (
 		port   = "8080"
-		driver = go_specs_greet.TestDriver{
+		driver = adapter.TestDriver{
 			BaseURL: fmt.Sprintf("http://localhost:%s", port),
 			Client: &http.Client{
 				Timeout: 1 * time.Second,
