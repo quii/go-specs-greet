@@ -3,7 +3,7 @@ package grpcserver
 import (
 	"context"
 
-	gospecsgreet "github.com/quii/go-specs-greet"
+	"github.com/quii/go-specs-greet/domain/interactions"
 )
 
 type GreetServer struct {
@@ -11,9 +11,9 @@ type GreetServer struct {
 }
 
 func (g GreetServer) Curse(ctx context.Context, request *CurseRequest) (*CurseReply, error) {
-	return &CurseReply{Message: gospecsgreet.Curse(request.Name)}, nil
+	return &CurseReply{Message: interactions.Curse(request.Name)}, nil
 }
 
 func (g GreetServer) Greet(ctx context.Context, request *GreetRequest) (*GreetReply, error) {
-	return &GreetReply{Message: gospecsgreet.Greet(request.Name)}, nil
+	return &GreetReply{Message: interactions.Greet(request.Name)}, nil
 }

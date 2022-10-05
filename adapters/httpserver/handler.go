@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/quii/go-specs-greet"
+	"github.com/quii/go-specs-greet/domain/interactions"
 )
 
 const (
@@ -14,8 +14,8 @@ const (
 
 func NewHandler() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc(greetPath, replyWith(gospecsgreet.Greet))
-	mux.HandleFunc(cursePath, replyWith(gospecsgreet.Curse))
+	mux.HandleFunc(greetPath, replyWith(interactions.Greet))
+	mux.HandleFunc(cursePath, replyWith(interactions.Curse))
 	return mux
 }
 

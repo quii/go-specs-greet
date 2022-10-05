@@ -1,4 +1,4 @@
-package gospecsgreet
+package interactions
 
 import "fmt"
 

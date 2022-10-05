@@ -750,7 +750,7 @@ func main() {
 
 ```
 
-and finally update the import and reference to `Driver` in greeter_server_test.go:
+and update the import and reference to `Driver` in greeter_server_test.go:
 
 ```go
 import (
@@ -765,27 +765,47 @@ import (
 
 ```
 
+Finally, it's helpful to gather our domain level code in to its own folder too. Don't be lazy and have a `domain` folder in your projects with hundreds of unrelated types and functions. Make an effort to think about your domain and group ideas that belong together together. This will make your project easier to understand and will improve the quality of your imports.
+
+Rather than seeing
+
+```go
+domain.Greet
+```
+
+Which is just a bit weird, instead favour
+
+```go
+interactions.Greet
+```
+
+Create a `domain` folder to house all your domain code, and within it, an `interactions` folder. Depending on your tooling, you may have to update some imports and code.
 
 Our project tree should now look like this:
 
 ```
 quii@Chriss-MacBook-Pro go-specs-greet % tree
 .
+├── Dockerfile
+├── Makefile
+├── README.md
 ├── adapters
 │   └── httpserver
 │       ├── driver.go
 │       └── handler.go
 ├── cmd
 │   └── httpserver
-│       ├── Dockerfile
 │       ├── greeter_server_test.go
 │       └── main.go
+├── domain
+│   └── interactions
+│       ├── greet.go
+│       └── greet_test.go
 ├── go.mod
 ├── go.sum
-├── greet.go
-├── greet_test.go
 └── specifications
     └── greet.go
+
 ```
 
 Our domain code, **essential complexity**, lives at the root of our go module, and code that will allow us to use them in "the real world" are organised into **adapters**. The `cmd` folder is where we can compose these logical groupings into practical applications, which have black-box tests to verify it all works. Nice!
@@ -1113,11 +1133,11 @@ type GreetServer struct {
 }
 
 func (g GreetServer) Greet(ctx context.Context, request *grpcserver.GreetRequest) (*grpcserver.GreetReply, error) {
-	return &grpcserver.GreetReply{Message: gospecsgreet.Greet(request.Name)}, nil
+	return &grpcserver.GreetReply{Message: interactions.Greet(request.Name)}, nil
 }
 ```
 
-Finally it passes! We have an acceptance test that proves our gRPC greet server behaves how we'd like.
+Finally, it passes! We have an acceptance test that proves our gRPC greet server behaves how we'd like.
 
 ## Refactor
 
@@ -1183,6 +1203,9 @@ Let's take a look at the current state of our project structure before moving on
 ```
 quii@Chriss-MacBook-Pro go-specs-greet % tree
 .
+├── Dockerfile
+├── Makefile
+├── README.md
 ├── adapters
 │   ├── docker.go
 │   ├── grpcserver
@@ -1196,24 +1219,24 @@ quii@Chriss-MacBook-Pro go-specs-greet % tree
 │       └── handler.go
 ├── cmd
 │   ├── grpcserver
-│   │   ├── Dockerfile
 │   │   ├── greeter_server_test.go
 │   │   └── main.go
 │   └── httpserver
-│       ├── Dockerfile
 │       ├── greeter_server_test.go
 │       └── main.go
+├── domain
+│   └── interactions
+│       ├── greet.go
+│       └── greet_test.go
 ├── go.mod
 ├── go.sum
-├── greet.go
-├── greet_test.go
 └── specifications
     └── greet.go
 ```
 
 - `adapters` have cohesive units of functionality grouped together
 - `cmd` holds our applications and corresponding acceptance tests
-- Our domain code lives at the root, totally decoupled from any accidental complexity
+- Our code is totally decoupled from any accidental complexity
 
 ### Consolidating `Dockerfile`
 
@@ -1457,7 +1480,7 @@ import (
 	"context"
 	"fmt"
 
-	gospecsgreet "github.com/quii/go-specs-greet"
+	"github.com/quii/go-specs-greet/domain/interactions"
 )
 
 type GreetServer struct {
@@ -1469,7 +1492,7 @@ func (g GreetServer) Curse(ctx context.Context, request *GreetRequest) (*GreetRe
 }
 
 func (g GreetServer) Greet(ctx context.Context, request *GreetRequest) (*GreetReply, error) {
-	return &GreetReply{Message: gospecsgreet.Greet(request.Name)}, nil
+	return &GreetReply{Message: interactions.Greet(request.Name)}, nil
 }
 ```
 
