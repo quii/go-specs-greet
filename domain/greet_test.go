@@ -14,7 +14,6 @@ func (g GreetAdapter) Greet(name string) (string, error) {
 	return g(name), nil
 }
 
-
 func TestGreet(t *testing.T) {
 	specifications.GreetSpecification(
 		t,
