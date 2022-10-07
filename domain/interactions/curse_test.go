@@ -10,6 +10,6 @@ import (
 func TestCurse(t *testing.T) {
 	specifications.CurseSpecification(
 		t,
-		interactions.CurseAdapter(interactions.Curse),
+		specifications.CurseAdapter(interactions.Curse),
 	)
 }
