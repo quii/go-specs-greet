@@ -23,6 +23,7 @@ func StartDockerServer(
 	binToBuild string,
 ) {
 	t.Helper()
+
 	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
 		FromDockerfile: newTCDockerfile(binToBuild),
@@ -33,6 +34,7 @@ func StartDockerServer(
 		ContainerRequest: req,
 		Started:          true,
 	})
+
 	assert.NoError(t, err)
 	t.Cleanup(func() {
 		assert.NoError(t, container.Terminate(ctx))

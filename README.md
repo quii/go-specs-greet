@@ -647,7 +647,7 @@ The compilation error is frustrating; we have a thing that we "know" is a `Greet
 
 A lot of fancy words for something relatively simple, which is often the case with design patterns, which is why people tend to roll their eyes at them. The value of design patterns is not specific implementations but a language to describe specific solutions to common problems engineers face. If you have a team that has a shared vocabulary, it reduces the friction in communication.
 
-Add this code in `./greet.go`
+Add this code in `./specifications/adapters.go`
 
 ```go
 type GreetAdapter func(name string) string
@@ -672,7 +672,7 @@ import (
 func TestGreet(t *testing.T) {
 	specifications.GreetSpecification(
 		t,
-		gospecsgreet.GreetAdapter(gospecsgreet.Greet),
+		specifications.GreetAdapter(gospecsgreet.Greet),
 	)
 }
 ```
@@ -765,7 +765,7 @@ import (
 
 ```
 
-Finally, it's helpful to gather our domain level code in to its own folder too. Don't be lazy and have a `domain` folder in your projects with hundreds of unrelated types and functions. Make an effort to think about your domain and group ideas that belong together together. This will make your project easier to understand and will improve the quality of your imports.
+Finally, it's helpful to gather our domain level code in to its own folder too. Don't be lazy and have a `domain` folder in your projects with hundreds of unrelated types and functions. Make an effort to think about your domain and group ideas that belong together, together. This will make your project easier to understand and will improve the quality of your imports.
 
 Rather than seeing
 
@@ -1523,11 +1523,13 @@ Add a unit test to our `Greet` function to default the `name` to `World` if it i
 
 ## Wrapping up
 
-Hopefully, with this approach, you can see our application's predictable, structured workflow for driving change.
-
-On your day job, you can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in the specification, and use it as a north-star towards your efforts. Separating essential and accidental complexity concerns will make your work less ad-hoc and more structured and deliberate.
-
 Building systems with a reasonable cost of change requires you to have ATs engineered to help you, not become a maintenance burden. On top of this, though, they can be used as a means of guiding, or as a GOOS says, "growing" your software methodically.
+
+Hopefully, with this example, you can see our application's predictable, structured workflow for driving change, and see how you could use it for your own work.
+
+You can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in a specification, and use it as a north-star towards your efforts. Riya and I describe leveraging BDD techniques like "Example Mapping" [in our GopherconUK talk](https://www.youtube.com/watch?v=ZMWJCk_0WrY) to help you more deeply understand the essential complexity, to allow you to write simpler, and more meaningful specifications.
+
+Separating essential and accidental complexity concerns will make your work less ad-hoc and more structured and deliberate.
 
 ### What has been covered
 
@@ -1535,6 +1537,7 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 - How to use [Testcontainers](https://golang.testcontainers.org) to manage the life-cycle of your system for ATs. This allows you to thoroughly test the image you intend to ship on your computer, giving you fast feedback and confidence.
 - A brief intro into containerising your application with Docker
 - gRPC
+- Rather than chasing canned folder structures, you can use your development approach to naturally drive out the structure of your application, based on your own needs
 
 ### Further material
 
