@@ -24,27 +24,26 @@ Finally, [Riya Dattani](https://twitter.com/dattaniriya) and I spoke about this 
 Over many years, I've worked for several companies and teams. Each of them recognised the need for acceptance tests; some way to test a system from a user's point of view and to verify it works how it's intended, but almost without exception, the cost of these tests became a real problem for the team.
 
 - Slow to run
-- The system still has numerous bugs
 - Brittle
-- Expensive to maintain, seem to make changing the software harder than it ought to be
+- Expensive to maintain, and seem to make changing the software harder than it ought to be
 - Can only run in a particular environment, causing slow and poor feedback loops
 
 Let's say you intend to write an acceptance test around a website you're building. You decide to use a headless web browser to simulate a user clicking buttons on your website to verify it does what it needs to do.
 
-Over time, your website's markup has to change as new features are discovered, and engineers bike-shed over whether something should be an `<article>` or a `<section>` for the billionth time. Even though your team are only making minor changes to the system, barely noticeable to the actual user, you find yourself having to update multiple tests for boring reasons, frequently.
+Over time, your website's markup has to change as new features are discovered, and engineers bike-shed over whether something should be an `<article>` or a `<section>` for the billionth time. Even though your team are only making minor changes to the system, barely noticeable to the actual user, you find yourself wasting lots of time updating your ATs.
 
 ### Tight-coupling
 
 Think about what prompts acceptance tests to change:
 
-- An external behaviour change. If you want to change the system's behaviour, changing the acceptance test suite seems reasonable, if not desirable.
+- An external behaviour change. If you want to change what the system does, changing the acceptance test suite seems reasonable, if not desirable.
 - An implementation detail change / refactoring. Ideally, this shouldn't prompt a change, or if it does, a minor one.
 
 Too often, though, the latter is the reason acceptance tests have to change. To the point where engineers even become reluctant to change their system because of the perceived effort of updating tests!
 
 ![Riya and myself talking about separating concerns in our tests](https://i.imgur.com/bbG6z57.png)
 
-These problems stem from not applying well-established and practised engineering habits written by the authors mentioned above. You can't write acceptance tests like unit tests; they require more thought and different practices.
+These problems stem from not applying well-established and practised engineering habits written by the authors mentioned above. **You can't write acceptance tests like unit tests**; they require more thought and different practices.
 
 ## Anatomy of good acceptance tests
 
@@ -59,7 +58,7 @@ As software engineers, we have to deal with two kinds of complexity.
 - **Essential complexity** is sometimes referred to as "domain logic". It's the particular rules and truths within your domain.
   - For example, "if an account owner withdraws more money than is available, they are overdrawn". This statement says nothing about computers; this statement was true before computers were even used in banks!
 
-Essential complexity should be expressible to a non-technical person, and it's valuable to have modelled in our "domain" code, and in our acceptance tests, within our systems.
+Essential complexity should be expressible to a non-technical person, and it's valuable to have modelled it in our "domain" code, and in our acceptance tests.
 
 ### Separation of concerns
 
@@ -79,13 +78,18 @@ At GopherconUK, Riya and I put this in Go terms.
 
 Decoupling how the specification is executed allows us to reuse it in different scenarios. We can:
 
-- Make our drivers configurable so they can be run locally, in your staging and (ideally) production environments.
-  - Too many teams engineer their systems such that acceptance tests are impossible to run locally. This introduces an intolerably slow feedback loop. Wouldn't you rather be confident your ATs will pass _before_ integrating your code? If the tests start breaking, is it acceptable that you'd be unable to reproduce the failure locally and instead, have to commit changes and cross your fingers that it'll pass 20 minutes later in a different environment?
-  - Remember, just because your tests pass in staging doesn't mean your system will work. Dev/Prod parity is, at best, a white lie. [I test in prod](https://increment.com/testing/i-test-in-production/).
-  - There are always differences between the environments that can affect the *behaviour* of your system. A CDN could have some cache headers incorrectly set; a downstream service you depend on may behave differently; a configuration value may be incorrect. But wouldn't it be nice if you could run your specifications in prod to catch these problems quickly?
-- Plug in _different_ drivers to test other parts of your system.
-  - For instance, you may have a web page with an API behind it. Why not use the same specification to test both? You can use a headless web browser for the web page, and HTTP calls for the API.
-  - Taking this idea further, ideally, we want the **code to model essential complexity** so we should also be able to use our specifications for unit tests. This will give swift feedback that the essential complexity in our system is modelled and behaves correctly.
+#### Make our drivers configurable
+
+This means you can run your ATs locally, in your staging and (ideally) production environments.
+- Too many teams engineer their systems such that acceptance tests are impossible to run locally. This introduces an intolerably slow feedback loop. Wouldn't you rather be confident your ATs will pass _before_ integrating your code? If the tests start breaking, is it acceptable that you'd be unable to reproduce the failure locally and instead, have to commit changes and cross your fingers that it'll pass 20 minutes later in a different environment?
+- Remember, just because your tests pass in staging doesn't mean your system will work. Dev/Prod parity is, at best, a white lie. [I test in prod](https://increment.com/testing/i-test-in-production/).
+- There are always differences between the environments that can affect the *behaviour* of your system. A CDN could have some cache headers incorrectly set; a downstream service you depend on may behave differently; a configuration value may be incorrect. But wouldn't it be nice if you could run your specifications in prod to catch these problems quickly?
+
+#### Plug in _different_ drivers to test other parts of your system
+
+This flexibility allows us to test behaviours at different abstraction and architectural layers, which allows us to have more focused tests beyond black-box tests.
+- For instance, you may have a web page with an API behind it. Why not use the same specification to test both? You can use a headless web browser for the web page, and HTTP calls for the API.
+- Taking this idea further, ideally, we want the **code to model essential complexity** (as "domain" code) so we should also be able to use our specifications for unit tests. This will give swift feedback that the essential complexity in our system is modelled and behaves correctly.
 
 
 ### Acceptance tests changing for the right reasons
@@ -93,11 +97,11 @@ Decoupling how the specification is executed allows us to reuse it in different 
 With this approach, the only reason for your specifications to change is if the behaviour of the system changes, which is reasonable.
 
 - If your HTTP API has to change, you have one obvious place to update it, the driver.
-- If your markup changes, again, update the driver.
+- If your markup changes, again, update the specific driver.
 
-As your system grows, you'll find yourself reusing the driver for multiple tests, which again means if implementation detail changes, you only have to update one place.
+As your system grows, you'll find yourself reusing drivers for multiple tests, which again means if implementation detail changes, you only have to update one, usually obvious place.
 
-When done right, this approach gives us flexibility in our implementation detail and stability in our specifications.
+When done right, this approach gives us flexibility in our implementation detail and stability in our specifications. Importantly, it provides a simple and obvious structure for managing change, which becomes essential as a system and its team grows. 
 
 ### Acceptance tests as a method for software development
 
@@ -129,7 +133,7 @@ This is where test doubles (e.g. fakes, mocks) are handy because most of the com
 
 #### The perils of bottom-up
 
-This is a "top-down" approach rather than a "bottom-up". Bottom-up has its uses, but it carries an element of risk. By building "services" and code without it being integrated into your application quickly and without verifying a high-level test, you risk wasting lots of effort on unvalidated ideas.
+This is a "top-down" approach rather than a "bottom-up". Bottom-up has its uses, but it carries an element of risk. By building "services" and code without it being integrated into your application quickly and without verifying a high-level test, **you risk wasting lots of effort on unvalidated ideas**.
 
 This is a crucial property of the acceptance-test-driven approach, using tests to get real validation of our code.
 
@@ -139,6 +143,8 @@ Too many times, I've encountered engineers who have made a chunk of code, in iso
 - Does stuff we don't need
 - Doesn't integrate easily
 - Requires a ton of re-writing anyway
+
+This is waste.
 
 ## Enough talk, time to code
 
@@ -1544,5 +1550,4 @@ Separating essential and accidental complexity concerns will make your work less
 - In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - For emphasis, [Growing Object-Oriented Software, Guided by Tests,](http://www.growing-object-oriented-software.com) is a classic. It demonstrates applying this "London style", "top-down" approach to writing software. Anyone who has enjoyed Learn Go with Tests should get much value from reading GOOS.
 - [In the example code repository](https://github.com/quii/go-specs-greet), there's more code and ideas I haven't written about here, such as multi-stage docker build, you may wish to check this out. 
-
 
