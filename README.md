@@ -148,13 +148,11 @@ This is waste.
 
 ## Enough talk, time to code
 
-Unlike other chapters, you'll need Docker installed.
+Unlike other chapters, you'll need [Docker](https://www.docker.com) installed because we'll be running our applications in containers.
 
-Create a new project
+Create a new project with `go mod init github.com/quii/go-specs-greet` (you can put whatever you like here but if you change the path you will need to change all internal imports to match)
 
-`go mod init github.com/quii/go-specs-greet` (you can put whatever you like here but if you change the path you will need to change all internal imports to match)
-
-Make a folder `specifications` to hold our specification, and add a file `greet.go`
+Make a folder `specifications` to hold our specifications, and add a file `greet.go`
 
 ```go
 package specifications
@@ -180,7 +178,7 @@ My IDE (Goland) takes care of the fuss of adding dependencies for me, but if you
 
 `go get github.com/alecthomas/assert/v2`
 
-Given Farley's acceptance test design (Specification->DSL->Driver->System), we now have a decoupled specification from implementation. It doesn't know or care about _how_ we `Greet`; it's just concerned with the logic. This "logic" isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate.
+Given Farley's acceptance test design (Specification->DSL->Driver->System), we now have a decoupled specification from implementation. It doesn't know or care about _how_ we `Greet`; it's just concerned with the essential complexity of our domain. Admittedly this complexity isn't much right now, but we'll expand upon the spec to add more functionality as we further iterate. It's always important to start small!
 
 You could view the interface as our first step of a DSL; as the project grows, you may find the need to abstract differently, but for now, this is fine.
 
@@ -1533,9 +1531,11 @@ Building systems with a reasonable cost of change requires you to have ATs engin
 
 Hopefully, with this example, you can see our application's predictable, structured workflow for driving change, and see how you could use it for your own work.
 
-You can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in a specification, and use it as a north-star towards your efforts. Riya and I describe leveraging BDD techniques like "Example Mapping" [in our GopherconUK talk](https://www.youtube.com/watch?v=ZMWJCk_0WrY) to help you more deeply understand the essential complexity, to allow you to write simpler, and more meaningful specifications.
+You can imagine talking to a stakeholder who wants to extend the system you work on in some way. Capture it in a domain-centric, implementation-agnostic way in a specification, and use it as a north star towards your efforts. Riya and I describe leveraging BDD techniques like "Example Mapping" [in our GopherconUK talk](https://www.youtube.com/watch?v=ZMWJCk_0WrY) to help you understand the essential complexity more deeply and allow you to write more detailed and meaningful specifications.
 
 Separating essential and accidental complexity concerns will make your work less ad-hoc and more structured and deliberate.
+
+Finally, these specifications should double up as documentation. They should specify clearly how a system should behave. This idea is the principle around tools like [Cucumber](https://cucumber.io), which offers you a DSL for capturing behaviours as code, and then you convert that DSL into system calls, just like we did here. 
 
 ### What has been covered
 
