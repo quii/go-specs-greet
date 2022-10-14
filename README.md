@@ -2,7 +2,9 @@
 
 This chapter is a follow-up to [Intro to acceptance tests](https://quii.gitbook.io/learn-go-with-tests/testing-fundamentals/intro-to-acceptance-tests). You can find [the finished code for this chapter on GitHub](https://github.com/quii/go-specs-greet).
 
-When written well, acceptance tests (ATs) are essential to a system's test suite. Your ability to have good acceptance tests directly impacts your ability to confidently evolve your system over time, with a reasonable cost of change.
+Acceptance tests (ATs) are essential to a system's test suite. Acceptance tests directly impacts your ability to confidently evolve your system over time, with a reasonable cost of change.
+
+They're also a fantastic tool to help you work with legacy code. When faced with a poor codebase without any tests, please resist the temptation to start refactoring. Instead, write some acceptance tests to give you a safety net to freely change the system's internals without affecting its functional external behaviour. ATs need not be concerned with internal quality, so they're a great fit in these situations.
 
 What you'll appreciate after reading this, is that not only are acceptance tests useful for verification but they can also be used in the development process, by helping us change our system more deliberately and methodically, and by reducing wasted effort.
 
@@ -25,12 +27,15 @@ Over many years, I've worked for several companies and teams. Each of them recog
 
 - Slow to run
 - Brittle
+- Flaky
 - Expensive to maintain, and seem to make changing the software harder than it ought to be
 - Can only run in a particular environment, causing slow and poor feedback loops
 
-Let's say you intend to write an acceptance test around a website you're building. You decide to use a headless web browser to simulate a user clicking buttons on your website to verify it does what it needs to do.
+Let's say you intend to write an acceptance test around a website you're building. You decide to use a headless web browser (like [Selenium](https://www.selenium.dev)) to simulate a user clicking buttons on your website to verify it does what it needs to do.
 
-Over time, your website's markup has to change as new features are discovered, and engineers bike-shed over whether something should be an `<article>` or a `<section>` for the billionth time. Even though your team are only making minor changes to the system, barely noticeable to the actual user, you find yourself wasting lots of time updating your ATs.
+Over time, your website's markup has to change as new features are discovered, and engineers bike-shed over whether something should be an `<article>` or a `<section>` for the billionth time. 
+
+Even though your team are only making minor changes to the system, barely noticeable to the actual user, you find yourself wasting lots of time updating your ATs.
 
 ### Tight-coupling
 
@@ -1506,7 +1511,7 @@ The tests should now pass.
 
 Try doing this yourself.
 
-- Extract the "domain logic", away from the grpc server, as we did for `Greet`. Use the specification as a unit test against your domain logic
+- Extract the `Curse` "domain logic", away from the grpc server, as we did for `Greet`. Use the specification as a unit test against your domain logic
 - Have different types in the protobuf to ensure the message types for `Greet` and `Curse` are decoupled.
 
 ## Implementing `Curse` for the HTTP server
