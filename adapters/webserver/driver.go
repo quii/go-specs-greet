@@ -1,8 +1,6 @@
 package webserver
 
 import (
-	"time"
-
 	"github.com/go-rod/rod"
 	"github.com/quii/go-specs-greet/adapters/webserver/internal/pages"
 )
@@ -14,7 +12,6 @@ type Driver struct {
 
 func NewDriver(baseURL string) (*Driver, func() error) {
 	browser := rod.New().MustConnect()
-	browser = browser.Timeout(5 * time.Second)
 	return &Driver{baseURL: baseURL, browser: browser}, browser.Close
 }
 
