@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/alecthomas/assert/v2 v2.1.0
 	github.com/docker/go-connections v0.4.0
+	github.com/go-rod/rod v0.111.0
 	github.com/testcontainers/testcontainers-go v0.13.0
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.27.1
@@ -36,6 +37,9 @@ require (
 	github.com/opencontainers/runc v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/ysmood/goob v0.4.0 // indirect
+	github.com/ysmood/gson v0.7.1 // indirect
+	github.com/ysmood/leakless v0.8.0 // indirect
 	go.opencensus.io v0.22.3 // indirect
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect

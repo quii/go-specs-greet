@@ -2,7 +2,7 @@
 
 This chapter is a follow-up to [Intro to acceptance tests](https://quii.gitbook.io/learn-go-with-tests/testing-fundamentals/intro-to-acceptance-tests). You can find [the finished code for this chapter on GitHub](https://github.com/quii/go-specs-greet).
 
-Acceptance tests (ATs) are essential to a system's test suite. Acceptance tests directly impacts your ability to confidently evolve your system over time, with a reasonable cost of change.
+Acceptance tests are essential, and they directly impact your ability to confidently evolve your system over time, with a reasonable cost of change.
 
 They're also a fantastic tool to help you work with legacy code. When faced with a poor codebase without any tests, please resist the temptation to start refactoring. Instead, write some acceptance tests to give you a safety net to freely change the system's internals without affecting its functional external behaviour. ATs need not be concerned with internal quality, so they're a great fit in these situations.
 
@@ -20,6 +20,10 @@ The inspiration for this chapter is borne of many years of frustration with acce
 - [GOOS](http://www.growing-object-oriented-software.com) - Nat Pryce & Steve Freeman
 
 Finally, [Riya Dattani](https://twitter.com/dattaniriya) and I spoke about this topic in the context of BDD in our talk, [Acceptance tests, BDD and Go](https://www.youtube.com/watch?v=ZMWJCk_0WrY).
+
+## Recap
+
+We're talking about "black-box" tests that verify your system behaves as expected from the outside. The tests do not have access to the innards of the system it tests. 
 
 ## Anatomy of bad acceptance tests
 
