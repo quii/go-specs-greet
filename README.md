@@ -23,7 +23,7 @@ Finally, [Riya Dattani](https://twitter.com/dattaniriya) and I spoke about this 
 
 ## Recap
 
-We're talking about "black-box" tests that verify your system behaves as expected from the outside. The tests do not have access to the innards of the system it tests. 
+We're talking about "black-box" tests that verify your system behaves as expected from the outside, from a "**business perspective**". The tests do not have access to the innards of the system it tests; they're only concerned with **what** your system does rather than **how**. 
 
 ## Anatomy of bad acceptance tests
 
@@ -1559,4 +1559,6 @@ Finally, these specifications should double up as documentation. They should spe
 - In this example, our "DSL" is not much of a DSL; we just used interfaces to decouple our specification from the real world and allow us to express domain logic cleanly. As your system grows, this level of abstraction might become clumsy and unclear. [Read into the "Screenplay Pattern"](https://cucumber.io/blog/bdd/understanding-screenplay-(part-1)/) if you want to find more ideas as to how to structure your specifications.
 - For emphasis, [Growing Object-Oriented Software, Guided by Tests,](http://www.growing-object-oriented-software.com) is a classic. It demonstrates applying this "London style", "top-down" approach to writing software. Anyone who has enjoyed Learn Go with Tests should get much value from reading GOOS.
 - [In the example code repository](https://github.com/quii/go-specs-greet), there's more code and ideas I haven't written about here, such as multi-stage docker build, you may wish to check this out. 
+  - In particular, *for fun*, I made a third adapter for a system, a web page with some HTML forms to `Greet` and `Curse`. The `Driver` leverages the excellent-looking [https://github.com/go-rod/rod](https://github.com/go-rod/rod) module, which allows it to work with the web page with a browser, just like a user would.
+
 
