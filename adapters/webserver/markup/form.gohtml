@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Greeting and cursing</title>
-</head>
-<body>
+{{template "top" .}}
 <form method="post" action="greet">
     <fieldset>
         <legend>Greet</legend>
@@ -19,5 +13,4 @@
         <input type="submit" />
     </fieldset>
 </form>
-</body>
-</html>
+{{template "bottom" .}}

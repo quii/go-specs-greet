@@ -8,5 +8,9 @@ import (
 )
 
 func main() {
-	log.Fatal(http.ListenAndServe(":8081", webserver.NewHandler()))
+	handler, err := webserver.NewHandler()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Fatal(http.ListenAndServe(":8081", handler))
 }
