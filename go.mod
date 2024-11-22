@@ -1,6 +1,6 @@
 module github.com/quii/go-specs-greet
 
-go 1.22.7
+go 1.23
 
 toolchain go1.23.0
 
